@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.11]  # You can specify multiple Python versions if needed
+        python-version: [3.11.5, 3.11.3]  # You can specify multiple Python versions if needed
 
     steps:
       - name: Checkout code
