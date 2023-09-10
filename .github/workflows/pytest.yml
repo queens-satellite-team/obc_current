@@ -1,32 +1,27 @@
-name: Run pytest on Windows for main branch
+name: Run Pytest on Push
 
 on:
   push:
     branches:
-      - 'main'  # Run on main branch
+      - main  # Change this to your main branch name
 
 jobs:
-  test:
-    runs-on: windows-latest  # Use the latest Windows runner
-
-    strategy:
-      matrix:
-        python-version: [3.11.5, 3.11.3]  # You can specify multiple Python versions if needed
+  pytest:
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11.5  # Specify your desired Python version
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt  # Modify this to your project's requirements file
 
-      - name: Run pytest
-        run: pytest
+    - name: Run Pytest
+      run: |
+        pytest  # Modify this to your Pytest command
