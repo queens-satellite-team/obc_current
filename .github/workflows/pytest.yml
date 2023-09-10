@@ -7,7 +7,7 @@ on:
 
 jobs:
   pytest:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
@@ -20,8 +20,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt  # Modify this to your project's requirements file
+        pip install -r requirements.txt
 
     - name: Run Pytest
       run: |
-        pytest  # Modify this to your Pytest command
+        pytest
