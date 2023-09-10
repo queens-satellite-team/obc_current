@@ -1,0 +1,27 @@
+name: Run pytest
+
+on:
+  push:
+    branches:
+      - main  # Change this to your repository's default branch if it's different
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11.5  # Replace 'x' with your desired Python version
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt  # Replace with your requirements file if applicable
+          pip install pytest
+
+      - name: Run pytest
+        run: pytest
