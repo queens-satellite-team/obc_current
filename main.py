@@ -1,7 +1,5 @@
 # Author: Hana Turcke
 
-
-
 def main():
     print("hello world")
 
