@@ -3,7 +3,7 @@ name: Run pytest on Windows for all branches
 on:
   push:
     branches:
-      - '*'  # Run on all branches
+      - 'main'  # Run on main branch
 
 jobs:
   test:
