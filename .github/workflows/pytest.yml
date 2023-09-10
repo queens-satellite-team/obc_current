@@ -1,4 +1,4 @@
-name: Run pytest on Windows for all branches
+name: Run pytest on Windows for main branch
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.9]  # You can specify multiple Python versions if needed
+        python-version: [3.11]  # You can specify multiple Python versions if needed
 
     steps:
       - name: Checkout code
