@@ -1,9 +1,9 @@
-name: Run Pytest on Push
+name: Run Clang on Push
 
 on:
   push:
     branches:
-      - main  # Change this to your main branch name 
+      - main
 
 jobs:
   clang-lint:
@@ -17,4 +17,4 @@ jobs:
       run: sudo apt-get update -y && sudo apt-get install -y clang
 
     - name: Run Clang Static Analyzer
-      run: clang-tidy src/**/*.cpp -- -I./include
+      run: clang-tidy obc_current/**/*.cpp -- -I./include
