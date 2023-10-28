@@ -17,4 +17,4 @@ jobs:
       run: sudo apt-get update -y && sudo apt-get install -y clang
 
     - name: Run Clang Static Analyzer
-      run: clang-tidy /**/*.cpp -- -I./include
+      run: clang-tidy *.cpp -- -I./include
