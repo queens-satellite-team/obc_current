@@ -81,8 +81,21 @@ public:
 
   }
 
-  void readTemperature(){
-    // reads tem
+  float readTemperature(int reg){
+    int tempData[2] = {0x1, 0x2}; // dummy variable
+    // int tempData[2] = i2c_bus.read_i2c_block_data(this->registers["slave"], reg, 2);
+
+    int upperByte = tempData[0] & 0x1F;
+    int lowerByte = tempData[1] / 16;
+
+    if(upperByte & 0x10){ // if the 5th bit of the upper byte is a 1
+      upperByte = (upperByte & 0xF) * 16;       // multiply by 16 to convert into degrees
+      return -255.75 + (upperByte + lowerByte); // returns temp in celsius
+    }else{
+      upperByte = upperByte * 16;   // multiply
+      return upperByte + lowerByte; // concatenating
+    }
+
   }
 
 
