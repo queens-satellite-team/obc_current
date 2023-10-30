@@ -27,9 +27,9 @@ private:
   int lower_value;
 
   enum Registers {
-    SLAVE = 0x1,
+    SLAVE = 0x18,
     T_UPPER = 0x02,
-    T_LOWER = 0x03,
+    T_LOWER = 0x04,
     T_CRIT = 0x04,
     T_AMBIENT = 0x05,
     MANUFACTURE_ID = 0x06,
@@ -38,9 +38,51 @@ private:
   };
 
 public:
+  // constructors
   TempSensor();
+
+
   TempSensor(bool i2c_status, int critical_value, int upper_value, int lower_value)
   : i2c_status(i2c_status), critical_value(critical_value), upper_value(upper_value), lower_value(lower_value){
+  }
+
+  // purpose??
+  void reset(){
+    // reset the temperature sensor's critical upper and lower temperatures to 0
+    this->critical_value = 0;
+    this->upper_value = 0;
+    this->lower_value = 0;
+  }
+
+
+  void writeTemperature(int reg, float value){
+    // writes temperature value to a register for display
+
+    int upperByte, lowerByte;
+
+    if(value < 0){
+      int val = int(value * -16);
+      upperByte = val >> 8;   // isolate upper bits
+      lowerByte = val & 0xFF; // isolate lower bits
+
+      upperByte ^= 0x0F;
+      lowerByte ^= 0xFF;
+
+      upperByte |= 0x10; // add sign bit
+    }else {
+      int val = int(value * 16);
+      upperByte = val >> 8;   // isolate upper bits
+      lowerByte = val & 0xFF; // isolate lower bits
+    }
+
+    int byteArray[2] = {upperByte, lowerByte};
+
+    // i2c_bus.write_i2c_block_data(this->registers["slave"], reg, byteArray);
+
+  }
+
+  void readTemperature(){
+    // reads tem
   }
 
 
