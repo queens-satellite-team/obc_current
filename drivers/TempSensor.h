@@ -9,7 +9,8 @@
 
 using namespace std;
 
-class TempSensor {
+class TempSensor
+{
 public:
   // Constructor
   TempSensor();
@@ -33,7 +34,8 @@ public:
   float ambientTemp() { return this->readTemperature(this->T_AMBIENT); }
 
   // Setters
-  void criticalTemp(float value) {
+  void criticalTemp(float value)
+  {
     this->writeTemperature(this->T_CRIT, value);
   }
 
@@ -47,8 +49,10 @@ private:
   int critical_value;
   int upper_value;
   int lower_value;
+  int mcp9808_fd;
 
-  enum Registers {
+  enum Registers
+  {
     SLAVE = 0x18,
     T_UPPER = 0x02,
     T_LOWER = 0x04,
