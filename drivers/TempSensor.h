@@ -21,7 +21,7 @@ public:
   void reset();
   pair<uint8_t, uint8_t> floatToBytes(float value);
   float bytesToFloat(pair<uint8_t, uint8_t> bytes);
-  void writeTemperature(int reg, float value); // setTemperature
+  int writeTemperature(float temperature, int reg); // setTemperature
   float readTemperature(int reg);              // getTemperature
 
   // Getters (accessors)

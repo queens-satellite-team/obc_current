@@ -26,7 +26,6 @@ TempSensor::TempSensor(
   if (wiringPiSetup() == -1)
   {
     std::cerr << "Unable to initialize WiringPi." << std::endl;
-    return 1;
   }
 
   // Open a connection to the MCP9808 sensor
@@ -34,7 +33,6 @@ TempSensor::TempSensor(
   if (mcp9808_fd == -1)
   {
     std::cerr << "Unable to initialize I2C communication." << std::endl;
-    return 1;
   }
 }
 
