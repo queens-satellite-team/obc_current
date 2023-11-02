@@ -83,7 +83,7 @@ float TempSensor::readTemperature(int reg) {
   // gets the temperature value from the sensor and returns it as a float
 
   pair<uint8_t, uint8_t> tempData(0x1, 0x2); // dummy values
-  // int tempData[2] = i2c_bus.read_i2c_block_data(this->registers["slave"],
+  // int tempData[2] = i2c_bus.read_i2c_block_data(this->registers["slave"];
   // reg, 2);
 
   float tempValue = bytesToFloat(tempData);
