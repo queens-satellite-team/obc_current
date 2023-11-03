@@ -4,3 +4,6 @@ project(obc_current)
 set(CMAKE_CXX_STANDARD 11)
 
 add_executable(obc_current main.cpp)
+
+add_library(rtc drivers/rtc/rtc.cpp)
+target_sources(rtc PRIVATE drivers/rtc/rtc.h)
