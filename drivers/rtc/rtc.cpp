@@ -6,7 +6,12 @@
 #include <iostream>
 
 RTC::RTC() : RTC(1, 1, 0, "2000-10-13 2:54:31") {
-    if (wiringPiSetup() == -1) {
+
+}
+
+RTC::RTC(int battery, int clock, int i2c_status, std::string datetime) 
+    : i2c_status(i2c_status) {
+        if (wiringPiSetup() == -1) {
         std::cerr << "Unable to initialize WiringPi." << std::endl;
     }
 
@@ -16,20 +21,16 @@ RTC::RTC() : RTC(1, 1, 0, "2000-10-13 2:54:31") {
         std::cerr << "Unable to initialize I2C." << std::endl;
     }
 
-    this->setBattery(this->battery);
-    this->setClock(this->clock);
-    this->setDateTime(this->dateTime);
-}
-
-RTC::RTC(int battery, int clock, int i2c_status, std::string datetime) 
-    : battery(battery),  clock(clock), i2c_status(i2c_status), dateTime(datetime) {
-    
+    this->setBattery(battery);
+    this->setClock(clock);
+    this->setDateTime(datetime);
 }
 
 int RTC::reset() {
-    this->battery = this->getBattery();
-    this->clock = this->getClock();
-
+    this->setBattery(0);
+    this->setClock(0);
+    this->setDateTime("0-1-1 0:0:0");
+    this->i2c_status = 0;
     return 0;
 }
 
@@ -39,8 +40,10 @@ int RTC::checkTick() {
     sleep(5);
     int s1 = this->getSeconds();
     int diff = s1 - s0;   
+    
+    int clock = this->getClock();
 
-    if (this->clock == 1) {
+    if (clock == 1) {
         if (diff > 0) {
             std::cout << "Success: Clock is Ticking" << std::endl;
             return 0;
@@ -48,7 +51,7 @@ int RTC::checkTick() {
             std::cout << "Fail: Clock is not Ticking" << std::endl;
             return -1;
         }
-    } else if (this->clock == 0) {
+    } else if (clock == 0) {
         if (diff == 0) {
             std::cout << "Success: Clock is not Ticking" << std::endl;
             return 0;
@@ -160,7 +163,8 @@ int RTC::setClock(bool state) {
 int RTC::setSeconds(int value) {
     if (verifyDate(SEC, value)) {
         uint8_t enc = RTC::encodeDecimal(value);
-        uint8_t byte = (this->clock << 7) | enc;
+        int clock = this->getClock();
+        uint8_t byte = (clock << 7) | enc;
         return this->setRegister(SEC, byte);
     }
     return -1;
@@ -242,6 +246,18 @@ uint8_t RTC::encodeDecimal(int value) {
 }
 
 bool RTC::verifyDate(Register reg, int value) {
+    if (reg == SEC)
+        return 0 <= value && value <= 60;
+    if (reg == MIN)
+        return 0 <= value && value <= 60;
+    if (reg == HOUR)
+        return 0 <= value && value <= 24;
+    if (reg == DATE)
+        return 1 <= value && value <= 31;
+    if (reg == MONTH)
+        return 1 <= value && value <= 12;
+    if (reg == YEAR)
+        return 0 <= value && value <= 99;
 
-    return true;
+    return false;
 }

@@ -56,10 +56,7 @@ private:
     bool verifyDate(Register reg, int value);
     
     int i2c_status;
-    std::string dateTime;
     int fd;
-    int clock;
-    int battery; 
 
 };
 
