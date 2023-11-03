@@ -35,7 +35,7 @@ class RTC {
 public:
 
     // Default constructor
-    RTC() = default;
+    RTC();
 
     /*
      *  Constructor for Real time Clock

@@ -24,7 +24,7 @@ RTC::RTC(int battery, int clock, int i2c_status, std::string datetime)
     this->setBattery(battery);
     this->setClock(clock);
     this->setDateTime(datetime);
-}
+}   
 
 int RTC::reset() {
     this->setBattery(0);
@@ -134,7 +134,7 @@ int RTC::setRegister(Register reg, uint8_t byte) {
     return write;
 }
 
-int RTC::setBattery(bool state) {
+int RTC::setBattery(int state) {
     uint8_t value = this->getRegister(WEEKDAY);
     if (state) {
         value |= 0b1000;
@@ -146,7 +146,7 @@ int RTC::setBattery(bool state) {
     return write;
 }
 
-int RTC::setClock(bool state) {
+int RTC::setClock(int state) {
     uint8_t value = this->getRegister(SEC);
     
     if (state) {
