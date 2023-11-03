@@ -62,8 +62,7 @@ public:
     int getDate();
     int getMonth();
     int getYear();
-    std::string getDateTime();
-    
+    std::string getDateTime();    
 
     /*
      *  Setters
@@ -81,6 +80,7 @@ public:
     int setMonth(int month);
     int setYear(int year);
     int setDateTime(std::string time);
+    int setDateTime(struct tm tm);
     
 private:
 
@@ -92,8 +92,8 @@ private:
     static uint8_t encodeDecimal(int value);
     
 
-    // Checks if the clock as it's been told to
-    int checkTick();
+    // Checks if the clock is running as it's supposed to in the proper state
+    int checkTick(int clock);
     
     // Writes a byte to an internal register
     int setRegister(Register reg, uint8_t byte);

@@ -5,10 +5,11 @@
 #include <ctime>
 #include <iostream>
 
-RTC::RTC() : RTC(1, 1, 0, "2000-10-13 2:54:31") {
 
-}
+// Default Constructor
+RTC::RTC() : RTC(0, 0, 0, "0-1-1 0:0:0") {}
 
+// Constructor that sets the specified values in the rtc
 RTC::RTC(int battery, int clock, int i2c_status, std::string datetime) 
     : i2c_status(i2c_status) {
         if (wiringPiSetup() == -1) {
@@ -26,6 +27,7 @@ RTC::RTC(int battery, int clock, int i2c_status, std::string datetime)
     this->setDateTime(datetime);
 }   
 
+// resets the rtc to default values
 int RTC::reset() {
     this->setBattery(0);
     this->setClock(0);
@@ -34,15 +36,14 @@ int RTC::reset() {
     return 0;
 }
 
-int RTC::checkTick() {
+// Verify that the clock is working as intended
+int RTC::checkTick(int clock) {
     
     int s0 = this->getSeconds();
     sleep(5);
     int s1 = this->getSeconds();
     int diff = s1 - s0;   
     
-    int clock = this->getClock();
-
     if (clock == 1) {
         if (diff > 0) {
             std::cout << "Success: Clock is Ticking" << std::endl;
@@ -65,6 +66,7 @@ int RTC::checkTick() {
     return -1;
 }
 
+// Get the byte at the specified register from the rtc
 int RTC::getRegister(Register reg) {
     const int value = wiringPiI2CReadReg8(this->fd, reg);
     
@@ -75,11 +77,13 @@ int RTC::getRegister(Register reg) {
     return value;
 }
 
+//Gets the clock status bit
 int RTC::getClock() {
     const int status = wiringPiI2CReadReg8(this->fd, SEC) & 0b1000000;
     return status >> 7;
 }
 
+//Gets the backup battery enable bit
 int RTC::getBattery() {
     const int value = wiringPiI2CReadReg8(this->fd, WEEKDAY);
     const int battery = (value & 0b1000) >> 3;
@@ -87,53 +91,63 @@ int RTC::getBattery() {
     return battery;
 }
 
+//Gets the current seconds 
 int RTC::getSeconds() {
     const int value = this->getRegister(SEC) & 0b01111111;
     const int seconds = (value >> 4) * 10 + value & 0b1111;
     return seconds;
 }
 
+//Gets the current minutes
 int RTC::getMinutes() {
     const int value = this->getRegister(MIN) & 0b01111111;
     const int minutes = (value >> 4) * 10 + value & 0b1111;
     return minutes;
 }
 
+//Gets the current Hours
 int RTC::getHours() {
     const int value = this->getRegister(HOUR) & 0b00111111;
     return (value >> 4) * 10 + value & 0b1111;
 }
 
+//Gets the current Weekday //is this needed?
 int RTC::getWeekDay() {
     const int value = this->getRegister(WEEKDAY) & 0b0111;
     return value;
 }
 
+//Gets the current Date in the month
 int RTC::getDate() {
     const int value = this->getRegister(DATE) & 0b00111111;
     return (value >> 4) * 10 + value & 0xF;
 }
 
+//Gets the current month in the year
 int RTC::getMonth() {
     const int value = this->getRegister(MONTH) & 0b00011111;
     return (value >> 4) * 10 + value & 0xF;
 }
 
+//Gets the current year - 2000
 int RTC::getYear() {
     const int value = this->getRegister(YEAR) & 0b11111111;
     return (value >> 4) * 10 + value & 0xF;
 }
 
+//Formats the internal values into a string
 std::string RTC::getDateTime() {
     return "not completed";
 }
 
+//Sets an internal register with a byte
 int RTC::setRegister(Register reg, uint8_t byte) {
     int write = wiringPiI2CWriteReg8(this->fd, reg, byte);
     i2c_status = write;
     return write;
 }
 
+//Sets the battery bit to the specified state
 int RTC::setBattery(int state) {
     uint8_t value = this->getRegister(WEEKDAY);
     if (state) {
@@ -146,6 +160,7 @@ int RTC::setBattery(int state) {
     return write;
 }
 
+//Sets the clock bit to the specified state
 int RTC::setClock(int state) {
     uint8_t value = this->getRegister(SEC);
     
@@ -156,10 +171,11 @@ int RTC::setClock(int state) {
     }
     
     int write = this->setRegister(SEC, value); 
-    this->checkTick();
+    this->checkTick(state);
     return write;
 }
 
+//Sets the seconds bits to the specified value
 int RTC::setSeconds(int value) {
     if (verifyDate(SEC, value)) {
         uint8_t enc = RTC::encodeDecimal(value);
@@ -170,6 +186,7 @@ int RTC::setSeconds(int value) {
     return -1;
 }
 
+//Sets the minutes bits to the specified value
 int RTC::setMinutes(int value) {
     if (verifyDate(MIN, value)) {
         uint8_t enc = RTC::encodeDecimal(value);
@@ -178,6 +195,7 @@ int RTC::setMinutes(int value) {
     return -1;
 }
 
+//Sets the hours bits
 int RTC::setHours(int value) {
     if (verifyDate(HOUR, value)) {
         uint8_t raw = this->getRegister(HOUR);
@@ -188,6 +206,7 @@ int RTC::setHours(int value) {
     return -1;
 }
 
+//Sets the weekday
 int RTC::setWeekDay(int value) {
     if (verifyDate(WEEKDAY, value)) {
         uint8_t raw = this->getRegister(WEEKDAY);
@@ -198,6 +217,7 @@ int RTC::setWeekDay(int value) {
     return -1;
 }
 
+//Sets the date
 int RTC::setDate(int value) {
     if (verifyDate(DATE, value)) {
         uint8_t enc = RTC::encodeDecimal(value);
@@ -206,6 +226,7 @@ int RTC::setDate(int value) {
     return -1;
 }
 
+//Sets the month
 int RTC::setMonth(int value) {
     if (verifyDate(MONTH, value)) {
         uint8_t raw = this->getRegister(MONTH);
@@ -216,6 +237,7 @@ int RTC::setMonth(int value) {
     return -1;
 }
 
+//Sets the year
 int RTC::setYear(int value) {
     if (verifyDate(YEAR, value)) {
         uint8_t enc = RTC::encodeDecimal(value - 2000);
@@ -224,6 +246,7 @@ int RTC::setYear(int value) {
     return -1;
 }
 
+// Format is '%Y-%m-%d %H:%M:%S'
 int RTC::setDateTime(std::string time) {
     struct tm tm;
     if(strptime(time.c_str(), "%Y-%m-%d %H:%M:%S", &tm)){
@@ -234,9 +257,22 @@ int RTC::setDateTime(std::string time) {
         this->setMonth(tm.tm_mon);
         this->setYear(tm.tm_year);
         this->i2c_status = 0;
+        return 0;
     }
     this->i2c_status = 1;
     return -1;
+}
+
+// Sets the date tiem using the calender date and time struct from c
+int RTC::setDateTime(struct tm tm) {
+    this->setSeconds(tm.tm_sec);
+    this->setMinutes(tm.tm_min);
+    this->setHours(tm.tm_hour);
+    this->setDate(tm.tm_mday);
+    this->setMonth(tm.tm_mon);
+    this->setYear(tm.tm_year);
+    this->i2c_status = 0;
+    return 1;
 }
 
 uint8_t RTC::encodeDecimal(int value) {
