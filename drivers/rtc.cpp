@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <ctime>
 #include <iostream>
+#include <stdio.h>
+
 /*
 int main(){
     RTC* rtc = new RTC();
@@ -19,9 +21,6 @@ RTC::RTC() : RTC(0, 0, 0, "0-1-1 0:0:0") {}
 // Constructor that sets the specified values in the rtc
 RTC::RTC(int battery, int clock, int i2c_status, std::string datetime) 
     : i2c_status(i2c_status) {
-        if (wiringPiSetup() == -1) {
-        std::cerr << "Unable to initialize WiringPi." << std::endl;
-    }
 
     this->fd = wiringPiI2CSetup(SLAVE);
 
@@ -151,8 +150,9 @@ std::string RTC::getDateTime() {
     int date = this->getDate();
     int month = this->getMonth();
     int year = this->getYear() + 2000;
-    printf("%d-%d-%d %d:%d:%d\n", year, month, date, hour, min, sec);
-    return "not completed";
+    char datetime[50];
+    std::sprintf(datetime, "%d-%d-%d %d:%d:%d", year, month, date, hour, min, sec);
+    return datetime;
 }
 
 //Sets an internal register with a byte
