@@ -143,12 +143,20 @@ int RTC::getYear() {
 }
 
 //Formats the internal values into a string
+//Yyyy-mm-dd h:m:s
 std::string RTC::getDateTime() {
+    int sec = this->getSeconds();
+    int min = this->getMinutes();
+    int hour = this->getHours();
+    int date = this->getDate();
+    int month = this->getMonth();
+    int year = this->getYear() + 2000;
+    printf("%d-%d-%d %d:%d:%d\n", year, month, date, hour, min, sec);
     return "not completed";
 }
 
 //Sets an internal register with a byte
-int RTC::setRegister(Register reg, uint8_t byte) {
+int RTC::setRegister(Register reg, int byte) {
     int write = wiringPiI2CWriteReg8(this->fd, reg, byte);
     i2c_status = write;
     return write;
@@ -156,7 +164,7 @@ int RTC::setRegister(Register reg, uint8_t byte) {
 
 //Sets the battery bit to the specified state
 int RTC::setBattery(int state) {
-    uint8_t value = this->getRegister(WEEKDAY);
+    int value = this->getRegister(WEEKDAY);
     if (state) {
         value |= 0b1000;
     } else {
@@ -169,7 +177,7 @@ int RTC::setBattery(int state) {
 
 //Sets the clock bit to the specified state
 int RTC::setClock(int state) {
-    uint8_t value = this->getRegister(SEC);
+    int value = this->getRegister(SEC);
     
     if (state) {
         value |= 0b10000000;
@@ -185,9 +193,9 @@ int RTC::setClock(int state) {
 //Sets the seconds bits to the specified value
 int RTC::setSeconds(int value) {
     if (verifyDate(SEC, value)) {
-        uint8_t enc = RTC::encodeDecimal(value);
+        int enc = RTC::encodeDecimal(value);
         int clock = this->getClock();
-        uint8_t byte = (clock << 7) | enc;
+        int byte = (clock << 7) | enc;
         return this->setRegister(SEC, byte);
     }
     return -1;
@@ -196,7 +204,7 @@ int RTC::setSeconds(int value) {
 //Sets the minutes bits to the specified value
 int RTC::setMinutes(int value) {
     if (verifyDate(MIN, value)) {
-        uint8_t enc = RTC::encodeDecimal(value);
+        int enc = RTC::encodeDecimal(value);
         return this->setRegister(MIN, enc);
     }
     return -1;
@@ -205,9 +213,9 @@ int RTC::setMinutes(int value) {
 //Sets the hours bits
 int RTC::setHours(int value) {
     if (verifyDate(HOUR, value)) {
-        uint8_t raw = this->getRegister(HOUR);
-        uint8_t enc = RTC::encodeDecimal(value);
-        uint8_t byte = (raw & 0b01000000) | enc;
+        int raw = this->getRegister(HOUR);
+        int enc = RTC::encodeDecimal(value);
+        int byte = (raw & 0b01000000) | enc;
         return this->setRegister(HOUR, enc);
     }
     return -1;
@@ -216,9 +224,9 @@ int RTC::setHours(int value) {
 //Sets the weekday
 int RTC::setWeekDay(int value) {
     if (verifyDate(WEEKDAY, value)) {
-        uint8_t raw = this->getRegister(WEEKDAY);
-        uint8_t enc = RTC::encodeDecimal(value);
-        uint8_t byte = (raw & 0b00100000) | enc;
+        int raw = this->getRegister(WEEKDAY);
+        int enc = RTC::encodeDecimal(value);
+        int byte = (raw & 0b00100000) | enc;
         return this->setRegister(WEEKDAY, enc);
     }
     return -1;
@@ -227,7 +235,7 @@ int RTC::setWeekDay(int value) {
 //Sets the date
 int RTC::setDate(int value) {
     if (verifyDate(DATE, value)) {
-        uint8_t enc = RTC::encodeDecimal(value);
+        int enc = RTC::encodeDecimal(value);
         return this->setRegister(WEEKDAY, enc);
     }
     return -1;
@@ -236,9 +244,9 @@ int RTC::setDate(int value) {
 //Sets the month
 int RTC::setMonth(int value) {
     if (verifyDate(MONTH, value)) {
-        uint8_t raw = this->getRegister(MONTH);
-        uint8_t enc = RTC::encodeDecimal(value);
-        uint8_t byte = (raw & 0b11100000) | enc;
+        int raw = this->getRegister(MONTH);
+        int enc = RTC::encodeDecimal(value);
+        int byte = (raw & 0b11100000) | enc;
         return this->setRegister(MONTH, enc);
     }
     return -1;
@@ -247,7 +255,7 @@ int RTC::setMonth(int value) {
 //Sets the year
 int RTC::setYear(int value) {
     if (verifyDate(YEAR, value)) {
-        uint8_t enc = RTC::encodeDecimal(value - 2000);
+        int enc = RTC::encodeDecimal(value - 2000);
         return this->setRegister(YEAR, enc);
     }
     return -1;
@@ -282,9 +290,9 @@ int RTC::setDateTime(struct tm tm) {
     return 1;
 }
 
-uint8_t RTC::encodeDecimal(int value) {
-    uint8_t ones = value % 10;
-    uint8_t tens = uint8_t(value / 10);
+int RTC::encodeDecimal(int value) {
+    int ones = value % 10;
+    int tens = uint8_t(value / 10);
     return (tens << 4) + ones;
 }
 

@@ -89,14 +89,14 @@ private:
      *  the low bits of the byte represents the ones digit
      *  and the high bits of the byte represents the tens
      */
-    static uint8_t encodeDecimal(int value);
+    static int encodeDecimal(int value);
     
 
     // Checks if the clock is running as it's supposed to in the proper state
     int checkTick(int clock);
     
     // Writes a byte to an internal register
-    int setRegister(Register reg, uint8_t byte);
+    int setRegister(Register reg, int byte);
 
     // Reads a byte from an internal register
     int getRegister(Register reg);
