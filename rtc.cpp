@@ -4,7 +4,14 @@
 #include <unistd.h>
 #include <ctime>
 #include <iostream>
-
+/*
+int main(){
+    RTC* rtc = new RTC();
+    while(true) {
+        sleep(1);
+        printf("%d\n", rtc->getSeconds());
+    }
+}*/
 
 // Default Constructor
 RTC::RTC() : RTC(0, 0, 0, "0-1-1 0:0:0") {}

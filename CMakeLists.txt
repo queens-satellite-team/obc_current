@@ -3,7 +3,10 @@ project(obc_current)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(obc_current main.cpp)
+include_directories(.)
 
-add_library(rtc drivers/rtc/rtc.cpp)
-target_sources(rtc PRIVATE drivers/rtc/rtc.h)
+add_executable(obc_current main.cpp rtc.cpp)
+find_library(wiringPi_LIB wiringPi)
+target_link_libraries(obc_current ${wiringPi_LIB})
+add_definitions(-std=c++0x -l/usr/local/lib/libwringpi.so -lwiringpi -lpthread)
+
