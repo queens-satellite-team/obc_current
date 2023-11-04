@@ -1,2 +1,3 @@
-add_library(DriversSources rtc.cpp)
-target_sources(DriversSources PRIVATE rtc.h)
+set(drivers_SRCS 
+    rtc.cpp
+    )
