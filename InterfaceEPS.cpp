@@ -1,4 +1,5 @@
-
+#include <iostream>
+using namespace std;
 class InterfaceEPS{
     public:
 /*
@@ -8,8 +9,8 @@ class InterfaceEPS{
         7-bit means...
 
         Binary: 
-        Index:    6   5   4   3   2   1   0
-                  0   0   0   0   0   0   0
+        Index:    6   5   4   3   2   1   0  R/W
+                  0   0   0   0   0   0   0  1/0 
         So in Hex should be from 0x00 to 0x7F 
 */
 /*
@@ -36,24 +37,50 @@ class InterfaceEPS{
 */
         int sAddress;
 
-        // Start byte
+        // Start byte (stop = 0)
         int start;
 
         // Acknowledge bit
         // Receiving device is required to acknowledge 
         int aB;
 
-        // read/write bit
+        // read/write bit (bit 1 = read, bit 0 = write)
+        // Probably best to include that in the sAddress
+        // rather than its own int var
         int rwB;
 
+        // Command byte
+        int cmd;
+
+        // Data Parameter byte
+        int dataP;
+
+        // Data [1] and Data[0]
+
         // Function for determining command
-        int command(int sAddress, int rwb);
+        int command(int start, int sAddress, int rwb){
+            /*
+                if (start = 1){
+                    Figure out how to actually send address
+                    switch (rwb) {
+                        case 0:
+                            write function
+                            break;
+                        case 1:
+                            read function
+                            break;
+                        default:
+                            cout << "Error: Invalid rwb byte"
+                    }
+                }
+            */
+        }
 
         // Function to use if command is read (might not use, seems redundant)
         int readC(int sAddress);
 
         // Function to use if command is write (might not use, seems redundant)
-        int writeC();
+        int writeC(int sAddress);
 
         // Each slave can be identified with a specific address
         // Will be used inside readC and writeC function
@@ -61,8 +88,24 @@ class InterfaceEPS{
         int sId();
 
         /*
+            Depending on the command read first two bytes represents
+            information from the motherboard and furth two bytes are the
+            daughterboard. Overall bytes will be returned, need to translate
+            the definition for that information.
+        */
+
+
+        
+
+};
+
+
+int main(){
+    
+        /*
         
         1) Master sends start condition to every connected slave device
+        Assuming this is required for read command since there is a stop bit
 
         2) Master sends each slave the 7-bit address of the slave it wants to 
            communicate with along with the read/write bit
@@ -70,18 +113,23 @@ class InterfaceEPS{
         3) Each slave must compare its own address with the address sent by
            the master. If the address is a match, return acknowledge byte
 
+        4) Master will send data to that slave device or read data from it
+
+        5) Extra note for read command:
+           A stop condition should be set to stop reading from the device
+
         */
-
-};
-
-
-int main(){
-
+    InterfaceEPS myEPS;
+    
+    
 }
 
+/* Side notes:
+        What does this mean?
+        Each command has a delay associated with it, this is required to
+        allow the microcontroller time to process each request. During this delay, the correct response may
+        not be returned, and commands sent during the period may be ignored.
 
+        User prompt?
 
-// Side note: What does this mean?
-//         Each command has a delay associated with it, this is required to
-//         allow the microcontroller time to process each request. During this delay, the correct response may
-//         not be returned, and commands sent during the period may be ignored.
+*/
