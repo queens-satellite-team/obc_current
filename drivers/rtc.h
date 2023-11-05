@@ -16,13 +16,14 @@
 #define OBC_RTC_H
 
 #include <string>
+#include <linux/types.h>
 
-#define SLAVE 0x6F
+#define RTC_SLAVE 0b01101111
 
 class RTC {
     
     // Addresses for Internal Registers
-    enum Register {
+    enum Register : __u8 {
         SEC = 0x00,
         MIN = 0x01,
         HOUR = 0x02,
@@ -89,14 +90,13 @@ private:
      *  the low bits of the byte represents the ones digit
      *  and the high bits of the byte represents the tens
      */
-    static int encodeDecimal(int value);
+    static __u8 encodeDecimal(int value);
     
-
     // Checks if the clock is running as it's supposed to in the proper state
     int checkTick(int clock);
     
     // Writes a byte to an internal register
-    int setRegister(Register reg, int byte);
+    int setRegister(Register reg, __u8 byte);
 
     // Reads a byte from an internal register
     int getRegister(Register reg);
@@ -104,6 +104,8 @@ private:
     // Verifies that the passed in value for setting the date and time is valid
     bool verifyDate(Register reg, int value);
     
+    static int initI2C();
+
     int i2c_status;
     int fd;
 
