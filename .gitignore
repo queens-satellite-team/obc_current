@@ -1,9 +1,6 @@
-
 cmake-build-debug/
-
-CMakeLists.txt
-
 .idea
-
 .vscode/
-
+__pycache__/
+.pytest_cache
+*.pyc
