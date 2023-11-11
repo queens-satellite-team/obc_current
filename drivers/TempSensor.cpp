@@ -52,9 +52,34 @@ float TempSensor::readTemp(int reg)
   return temp;
 }
 
-int TempSensor::writeTemp(int reg)
+bool TempSensor::writeTemp(int reg, float temp)
 {
-  return 0;
+  // Untested code: GL
+  if (temp < -256.0 || temp > 255.875)
+  {
+    // Temperature out of range that can be represented
+    return false;
+  }
+
+  // Convert temperature to a 16-bit value
+  uint16_t t;
+  if (temp < 0)
+  {
+    temp += 256;
+    t = static_cast<uint16_t>(temp * 16.0) & 0x0FFF;
+    t |= 0x1000; // Set sign bit for negative temperatures
+  }
+  else
+  {
+    t = static_cast<uint16_t>(temp * 16.0) & 0x0FFF;
+  }
+
+  // Correct byte order for I2C transmission
+  t = (t >> 8) | (t << 8);
+
+  // Write the 16-bit temperature value to the register
+  // return i2c_smbus_write_word_data(i2cFile, reg, t) == 0;
+  return false;
 }
 
 int main()

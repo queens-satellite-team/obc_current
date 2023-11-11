@@ -41,7 +41,7 @@ public:
   TempSensor(int busNumber);
   ~TempSensor();
   float readTemp(int reg);
-  float writeTemp(int reg);
+  bool writeTemp(int reg, float temp);
 
 private:
   int i2cFile;
