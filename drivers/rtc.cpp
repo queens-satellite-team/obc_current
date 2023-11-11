@@ -43,9 +43,8 @@ int RTC::reset() {
 }
 
 void RTC::use(){
-    unsigned int secReg = this->getRegister(SEC);
-    std::bitset<8> x(secReg);
-    std::cout << x << '\n';
+    std::string datetime = this->getDateTime();
+    std::cout << datetime << "\n";
 }
 
 
@@ -62,6 +61,8 @@ int RTC::initI2C(){
         exit(1);
     }
     
+    printf("INFO: Successfullly Initialized i2c\n");
+
     return file;   
 }
 
@@ -108,7 +109,7 @@ int RTC::getRegister(Register reg) {
 
 //Gets the clock status bit
 int RTC::getClock() {
-    int status = this->getRegister(SEC) & 0b1000000;
+    int status = this->getRegister(SEC) & 0b10000000;
     return status >> 7;
 }
 
