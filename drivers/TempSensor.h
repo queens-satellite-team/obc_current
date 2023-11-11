@@ -42,6 +42,7 @@ public:
   ~TempSensor();
   float readTemp(int reg);
   bool writeTemp(int reg, float temp);
+  bool shutdown(bool sw);
 
 private:
   int i2cFile;

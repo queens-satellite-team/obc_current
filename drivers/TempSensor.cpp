@@ -82,6 +82,28 @@ bool TempSensor::writeTemp(int reg, float temp)
   return false;
 }
 
+bool TempSensor::shutdown(bool sw)
+{
+  uint16_t conf_shutdown;
+  uint16_t conf_register = i2c_smbus_read_word_data(i2cFile, MCP9808_REG_CONFIG);
+
+  conf_register = (conf_register >> 8) | (conf_register << 8);
+
+  if (sw == true)
+  {
+    conf_shutdown = conf_register | MCP9808_REG_CONFIG_SHUTDOWN;
+    conf_shutdown = (conf_shutdown >> 8) | (conf_shutdown << 8);
+    i2c_smbus_write_word_data(i2cFile, MCP9808_REG_CONFIG, conf_shutdown);
+  }
+  if (sw == false)
+  {
+    conf_shutdown = conf_register & ~MCP9808_REG_CONFIG_SHUTDOWN;
+    conf_shutdown = (conf_shutdown >> 8) | (conf_shutdown << 8);
+    i2c_smbus_write_word_data(i2cFile, MCP9808_REG_CONFIG, conf_shutdown);
+  }
+  return true;
+}
+
 int main()
 {
   std::cout << "Starting code" << std::endl;
