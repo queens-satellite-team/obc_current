@@ -49,7 +49,7 @@ void RTC::print(){
 
 
 int RTC::initI2C(){
-    int file = open("/dev/i2c-2", O_RDWR);
+    int file = open("/dev/i2c-1", O_RDWR);
     
     if (file < 0) {
         perror("Failed to open the i2c bus");
