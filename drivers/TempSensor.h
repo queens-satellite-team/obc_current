@@ -1,67 +1,54 @@
-#ifndef OBC_CURRENT_TEMP_SENSOR_H
-#define OBC_CURRENT_TEMP_SENSOR_H
+#ifndef TEMP_SENSOR_H
+#define TEMP_SENSOR_H
 
-#include <bitset>
-#include <cassert>
+extern "C"
+{
+#include <linux/i2c-dev.h>
+#include <i2c/smbus.h>
+}
 #include <iostream>
-#include <map>
-#include <string>
+#include <unistd.h>
+#include <cmath>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <limits>
+#include <bitset>
 
-using namespace std;
+#define MCP9808_I2CADDR_DEFAULT 0x18 ///< I2C address
+#define MCP9808_REG_CONFIG 0x01      ///< MCP9808 config register
+
+#define MCP9808_REG_CONFIG_SHUTDOWN 0x0100   ///< shutdown config
+#define MCP9808_REG_CONFIG_CRITLOCKED 0x0080 ///< critical trip lock
+#define MCP9808_REG_CONFIG_WINLOCKED 0x0040  ///< alarm window lock
+#define MCP9808_REG_CONFIG_INTCLR 0x0020     ///< interrupt clear
+#define MCP9808_REG_CONFIG_ALERTSTAT 0x0010  ///< alert output status
+#define MCP9808_REG_CONFIG_ALERTCTRL 0x0008  ///< alert output control
+#define MCP9808_REG_CONFIG_ALERTSEL 0x0004   ///< alert output select
+#define MCP9808_REG_CONFIG_ALERTPOL 0x0002   ///< alert output polarity
+#define MCP9808_REG_CONFIG_ALERTMODE 0x0001  ///< alert output mode
+
+#define MCP9808_REG_UPPER_TEMP 0x02   ///< upper alert boundary
+#define MCP9808_REG_LOWER_TEMP 0x03   ///< lower alert boundery
+#define MCP9808_REG_CRIT_TEMP 0x04    ///< critical temperature
+#define MCP9808_REG_AMBIENT_TEMP 0x05 ///< ambient temperature
+#define MCP9808_REG_MANUF_ID 0x06     ///< manufacture ID
+#define MCP9808_REG_DEVICE_ID 0x07    ///< device ID
+#define MCP9808_REG_RESOLUTION 0x08   ///< resolutin
 
 class TempSensor
 {
 public:
-  // Constructor
-  TempSensor();
-  TempSensor(bool i2c_status, int critical_value, int upper_value,
-             int lower_value);
-
-  // Member functions
-  void reset();
-  pair<uint8_t, uint8_t> floatToBytes(float value);
-  float bytesToFloat(pair<uint8_t, uint8_t> bytes);
-  int writeTemperature(float temperature, int reg); // setTemperature
-  float readTemperature(int reg);              // getTemperature
-
-  // Getters (accessors)
-  float criticalTemp() { return this->readTemperature(T_CRIT); }
-
-  float upperTemp() { return this->readTemperature(this->T_UPPER); }
-
-  float lowerTemp() { return this->readTemperature(this->T_LOWER); }
-
-  float ambientTemp() { return this->readTemperature(this->T_AMBIENT); }
-
-  // Setters
-  void criticalTemp(float value)
-  {
-    this->writeTemperature(this->T_CRIT, value);
-  }
-
-  void upperTemp(float value) { this->writeTemperature(this->T_UPPER, value); }
-
-  void lowerTemp(float value) { this->writeTemperature(this->T_LOWER, value); }
+  TempSensor(int busNumber);
+  ~TempSensor();
+  float readTemp(int reg);
+  float writeTemp(int reg);
 
 private:
-  // Attributes
-  bool i2c_status;
+  int i2cFile;
+  int sensorAddress;
   int critical_value;
   int upper_value;
   int lower_value;
-  int mcp9808_fd;
-
-  enum Registers
-  {
-    SLAVE = 0x18,
-    T_UPPER = 0x02,
-    T_LOWER = 0x04,
-    T_CRIT = 0x04,
-    T_AMBIENT = 0x05,
-    MANUFACTURE_ID = 0x06,
-    DEVICE_ID = 0x07,
-    RESOLUTION = 0x08
-  };
 };
 
-#endif // OBC_CURRENT_TEMP_SENSOR_H
+#endif

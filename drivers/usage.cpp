@@ -1,13 +1,21 @@
 #include "TempSensor.h"
+#include <cstdio>
 #include <unistd.h>
 
-void useTempSensor(){
-  TempSensor tempSensor = TempSensor();
+using namespace std;
 
-  while(true) {
+int main()
+{
+  std::printf("Starting usage.cpp\n");
+  TempSensor tempSensor(0, 0, 0, 0);
+
+  std::printf("Ran tempSensor Constructor\n");
+
+  while (true)
+  {
+    std::printf("Current Temperature: %f", tempSensor.ambientTemp());
     usleep(10000000);
-    printf("Current Temperature: %f", tempSensor.ambientTemp());
   }
+  return 0;
 }
-
-
+// 110 1011 1100 0001
