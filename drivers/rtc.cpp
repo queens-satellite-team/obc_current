@@ -42,7 +42,7 @@ int RTC::reset() {
     return 0;
 }
 
-void RTC::use(){
+void RTC::print(){
     std::string datetime = this->getDateTime();
     std::cout << datetime << "\n";
 }

@@ -46,8 +46,9 @@ public:
     
     // Resets RTC
     int reset();
-        
-    void use();
+    
+    // Prints the current datetime
+    void print();
 
     /*
      *  Getters
