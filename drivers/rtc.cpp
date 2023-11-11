@@ -13,19 +13,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <bitset>
 
 extern "C" {
     #include <i2c/smbus.h>
 }
-
-/*
-int main(){
-    RTC* rtc = new RTC();
-    while(true) {
-        sleep(1);
-        printf("%d\n", rtc->getSeconds());
-    }
-}*/
 
 // Default Constructor
 RTC::RTC() : RTC(0, 0, 0, "0-1-1 0:0:0") {}
@@ -49,6 +41,13 @@ int RTC::reset() {
     this->i2c_status = 0;
     return 0;
 }
+
+void RTC::use(){
+    unsigned int secReg = this->getRegister(SEC);
+    std::bitset<8> x(secReg);
+    std::cout << x << '\n';
+}
+
 
 int RTC::initI2C(){
     int file = open("/dev/i2c-2", O_RDWR);

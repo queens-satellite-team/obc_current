@@ -21,7 +21,6 @@
 #define RTC_SLAVE 0b01101111
 
 class RTC {
-    
     // Addresses for Internal Registers
     enum Register : __u8 {
         SEC = 0x00,
@@ -47,7 +46,8 @@ public:
     
     // Resets RTC
     int reset();
-    
+        
+    void use();
 
     /*
      *  Getters
