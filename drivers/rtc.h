@@ -34,6 +34,8 @@ class RTC {
 
 public:
 
+    ~RTC();
+
     // Default constructor
     RTC();
 
@@ -46,7 +48,10 @@ public:
     
     // Resets RTC
     int reset();
-    
+
+    //closes the file
+    int closeFile();
+
     // Prints the current datetime
     void print();
 

@@ -19,6 +19,10 @@ extern "C" {
     #include <i2c/smbus.h>
 }
 
+RTC::~RTC() {
+    this->closeFile();
+}
+
 // Default Constructor
 RTC::RTC() : RTC(0, 0, 0, "0-1-1 0:0:0") {}
 
@@ -40,6 +44,10 @@ int RTC::reset() {
     this->setDateTime("0-1-1 0:0:0");
     this->i2c_status = 0;
     return 0;
+}
+
+int RTC::closeFile() {
+    return close(this->fd);
 }
 
 void RTC::print(){
