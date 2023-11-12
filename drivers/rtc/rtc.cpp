@@ -217,7 +217,6 @@ int RTC::setClock(int state) {
     }
     
     int write = this->setRegister(SEC, value); 
-    this->checkTick(state);
     return write;
 }
 

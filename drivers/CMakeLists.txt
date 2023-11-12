@@ -1,2 +1,3 @@
-target_sources(${PROJECT_NAME} PUBLIC rtc.cpp)
-target_include_directories(${PROJECT_NAME} PUBLIC .)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+add_subdirectory(tests)
+add_subdirectory(rtc)

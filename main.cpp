@@ -1,7 +1,7 @@
 //
 // Created by hanat on 2023-10-28.
 //
-#include "drivers/rtc.h"
+#include "rtc.h"
 #include <unistd.h>
 #include <string>
 #include <iostream>
