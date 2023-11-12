@@ -2,8 +2,9 @@
 OBC repo where only clean, functional code is placed. 'obc' repo is deprecated to a code storage area.
 
 ## Setup
+Most drivers (if not all) will require linux
 
-Packages required
+Packages (There might be more)
 ```
 sudo apt install build-essential libi2c-dev cmake
 ```
