@@ -38,7 +38,7 @@ void test_TempSensorConstructor_1()
     assert(ioctl_fake.call_count == 1);
     assert(ioctl_fake.arg0_val == 2);
     assert(ioctl_fake.arg1_val == I2C_SLAVE);
-    // Variadic parameters are weird, only way to check them is define a whole function?
+    // Variadic parameters are weird, only way to check them is define a whole function??
     // assert(ioctl_fake.arg2_val == MCP9808_I2CADDR_DEFAULT);
 }
 
@@ -83,10 +83,19 @@ void test_read16_1()
 void test_write16_1()
 {
     // TODO: Set Up i2c_smbus_write_word_data with no history and fake return of true
+    RESET_FAKE(i2c_smbus_write_word_data);
+    I2c_smbus_write_word_data_fake.return_val = true;
 
     // TODO: Construct sensor and call write16 with any 16 bit value;
+    TempSensor sensor(1); 
+    uint16_t t = sensor.write16(0x01, 0x1234);
 
     // TODO: Assert i2c_smbus_write_word_data was called correctly (remember first and second byte should be flipped)
+    assert(i2c_smbus_write_word_data_fake.call_count == 1);
+    assert(i2c_smbus_write_word_data_fake.arg0_val == 1);
+    assert(i2c_smbus_write_word_data_fake.arg1_val == 0x01);
+    assert(i2c_smbus_write_word_data_fake.arg2_val == 0x3412);
+
 }
 
 void test_readTemp_1()
