@@ -4,6 +4,7 @@
 // Test setClock()
 TEST(RTC, SetClock) {
     RTC* rtc = new RTC();
+
     int in = 1;
     rtc->setClock(in);
     int out = rtc->getClock();
@@ -40,6 +41,24 @@ TEST(RTC, SettingDateTime) {
     std::string dateTimeOut = rtc->getDateTime();
 
     EXPECT_STREQ(dateTimeIn.c_str(), dateTimeOut.c_str());
+}
+
+TEST(RTC, ClockTick) {
+    RTC* rtc = new RTC();
+    
+    int s0 = rtc->getSeconds();
+    sleep(2);
+    int s1 = rtc->getSeconds();
+    int diff = s1 - s0;   
+    
+    int clock = rtc->getClock();
+    EXPECT_TRUE(clock == 1 || clock == 0);
+    
+    if (clock == 1) {
+        EXPECT_GT(diff, 0);
+    } else if (clock == 0) {
+        EXPECT_EQ(diff, 0);
+    }
 }
 
 int main() {

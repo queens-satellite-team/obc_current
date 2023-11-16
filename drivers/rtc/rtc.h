@@ -20,6 +20,8 @@
 
 #define RTC_SLAVE 0b01101111
 
+int initI2C(int adapter);
+
 class RTC {
     // Addresses for Internal Registers
     enum Register : __u8 {
@@ -38,22 +40,18 @@ public:
 
     // Default constructor
     RTC();
+    RTC(int adapter);
 
     /*
      *  Constructor for Real time Clock
      *
      *  Initializes RTC registers to the specified values
      */
-    RTC(int battery, int clock, int i2c_status, std::string datetime);
+    RTC(int battery, int clock, std::string datetime, int adapter);
     
-    // Resets RTC
     int reset();
-
-    //closes the file
     int closeFile();
-
-    // Prints the current datetime
-    void print();
+    void print(); // Prints the current datetime
 
     /*
      *  Getters
@@ -89,6 +87,8 @@ public:
     int setDateTime(std::string time);
     int setDateTime(struct tm tm);
     
+    int i2c_status;
+
 private:
 
     /*
@@ -98,9 +98,6 @@ private:
      */
     static __u8 encodeDecimal(int value);
     
-    // Checks if the clock is running as it's supposed to in the proper state
-    int checkTick(int clock);
-    
     // Writes a byte to an internal register
     int setRegister(Register reg, __u8 byte);
 
@@ -108,11 +105,8 @@ private:
     int getRegister(Register reg);
 
     // Verifies that the passed in value for setting the date and time is valid
-    bool verifyDate(Register reg, int value);
-    
-    static int initI2C();
+    bool verifyDate(Register reg, int value); 
 
-    int i2c_status;
     int fd;
 
 };

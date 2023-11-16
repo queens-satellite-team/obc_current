@@ -1,22 +1,41 @@
 #include "rtc.h"
-#include "wiringPi.h"
-#include "wiringPiI2C.h"
-#include <cstdint>
-#include <unistd.h>
-#include <ctime>
+#include <gtest/gtest.h>
 #include <iostream>
 #include <stdio.h>
+#include <bitset>
+
+#include <ctime>
+#include <unistd.h>
 
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <bitset>
+//#include <sys/types.h>
+//#include <sys/stat.h>
 
 extern "C" {
     #include <i2c/smbus.h>
+}
+
+int initI2C(int adapter){
+    char filename[20];
+    snprintf(filename, 19, "/dev/i2c-%d", adapter);
+    int file = open(filename, O_RDWR);
+    
+    if (file < 0) {
+        perror("Failed to open the i2c bus");
+        exit(-1);
+    }
+
+    if (ioctl(file, I2C_SLAVE, RTC_SLAVE)) {
+        perror("Failed to acqurie bus access and/or talk to slave\n");
+        exit(-1);
+    }
+    
+    printf("INFO: Successfullly Initialized i2c\n");
+
+    return file;   
 }
 
 RTC::~RTC() {
@@ -24,17 +43,22 @@ RTC::~RTC() {
 }
 
 // Default Constructor
-RTC::RTC() : RTC(0, 0, 0, "0-1-1 0:0:0") {}
+RTC::RTC() : RTC(0, 0, "0-1-1 0:0:0", 0) {}
+
+RTC::RTC(int adapter) : RTC(0, 0, "0-1-1 0:0:0", adapter) {}
 
 // Constructor that sets the specified values in the rtc
-RTC::RTC(int battery, int clock, int i2c_status, std::string datetime) 
-    : i2c_status(i2c_status) {
-    
-    this->fd = initI2C();
+RTC::RTC(int battery, int clock, std::string datetime, int adapter){
+    this->fd = initI2C(adapter);
 
-    this->setBattery(battery);
-    this->setClock(clock);
-    this->setDateTime(datetime);
+    if (this->fd >= 0)
+        this->i2c_status = 1;
+    
+    if (this->i2c_status){
+        this->setBattery(battery);
+        this->setClock(clock);
+        this->setDateTime(datetime);
+    }
 }   
 
 // resets the rtc to default values
@@ -42,11 +66,11 @@ int RTC::reset() {
     this->setBattery(0);
     this->setClock(0);
     this->setDateTime("0-1-1 0:0:0");
-    this->i2c_status = 0;
     return 0;
 }
 
 int RTC::closeFile() {
+    this->i2c_status = 0;
     return close(this->fd);
 }
 
@@ -55,63 +79,14 @@ void RTC::print(){
     std::cout << datetime << "\n";
 }
 
-
-int RTC::initI2C(){
-    int file = open("/dev/i2c-1", O_RDWR);
-    
-    if (file < 0) {
-        perror("Failed to open the i2c bus");
-        exit(1);
-    }
-
-    if (ioctl(file, I2C_SLAVE, RTC_SLAVE)) {
-        perror("Failed to acqurie bus access and/or talk to slave\n");
-        exit(1);
-    }
-    
-    printf("INFO: Successfullly Initialized i2c\n");
-
-    return file;   
-}
-
-// Verify that the clock is working as intended
-int RTC::checkTick(int clock) {
-    
-    int s0 = this->getSeconds();
-    sleep(5);
-    int s1 = this->getSeconds();
-    int diff = s1 - s0;   
-    
-    if (clock == 1) {
-        if (diff > 0) {
-            std::cout << "Success: Clock is Ticking" << std::endl;
-            return 0;
-        }else {
-            std::cout << "Fail: Clock is not Ticking" << std::endl;
-            return -1;
-        }
-    } else if (clock == 0) {
-        if (diff == 0) {
-            std::cout << "Success: Clock is not Ticking" << std::endl;
-            return 0;
-        }else {
-            std::cout << "Fail: Clock is Ticking" << std::endl;
-            return -1;
-        }
-    } else {
-        std::cerr << "Clock State Invalid" << std::endl;
-    }
-    return -1;
-}
-
 // Get the byte at the specified register from the rtc
 int RTC::getRegister(Register reg) {
     int data = i2c_smbus_read_byte_data(this->fd, reg);
-    
+
     if (data == -1) {
         std::cerr << "Unable to get Register: " << reg << std::endl;
     }
-    
+
     return data;
 }
 
@@ -189,7 +164,6 @@ std::string RTC::getDateTime() {
 //Sets an internal register with a byte
 int RTC::setRegister(Register reg, __u8 byte) {
     int write = i2c_smbus_write_byte_data(this->fd, reg, byte);
-    i2c_status = write;
     return write;
 }
 
@@ -209,14 +183,14 @@ int RTC::setBattery(int state) {
 //Sets the clock bit to the specified state
 int RTC::setClock(int state) {
     __u8 value = this->getRegister(SEC);
-    
+
     if (state) {
         value |= 0b10000000;
     } else {
         value &= 0b01111111;
     }
-    
-    int write = this->setRegister(SEC, value); 
+
+    int write = this->setRegister(SEC, value);
     return write;
 }
 
@@ -301,10 +275,8 @@ int RTC::setDateTime(std::string time) {
         this->setDate(tm.tm_mday);
         this->setMonth(tm.tm_mon);
         this->setYear(tm.tm_year + 1900); //tm year = year - 1900
-        this->i2c_status = 0;
         return 0;
     }
-    this->i2c_status = 1;
     return -1;
 }
 
@@ -316,13 +288,12 @@ int RTC::setDateTime(struct tm tm) {
     this->setDate(tm.tm_mday);
     this->setMonth(tm.tm_mon);
     this->setYear(tm.tm_year + 1900); //tm year = year - 1900
-    this->i2c_status = 0;
     return 1;
 }
 
 __u8 RTC::encodeDecimal(int value) {
     __u8 ones = value % 10;
-    __u8 tens = uint8_t(value / 10);
+    __u8 tens = __u8(value / 10);
     return (tens << 4) + ones;
 }
 
