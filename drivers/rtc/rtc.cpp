@@ -1,5 +1,4 @@
 #include "rtc.h"
-#include <gtest/gtest.h>
 #include <iostream>
 #include <stdio.h>
 #include <bitset>
