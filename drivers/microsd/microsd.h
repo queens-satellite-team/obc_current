@@ -17,9 +17,7 @@
 #include <fcntl.h>
 #include <bitset>
 
-extern "C" {
-    #include <i2c/smbus.h>
-}
+#define MOSI
 
 class MicroSD {
 
@@ -31,7 +29,6 @@ public:
     void writeBlocks(uint32_t blockNum, const uint8_t* buf);
 
 private:
-    spi_ioc_transfer spi;
     int fd;
     int cs;
     uint8_t cmdbuf[6];

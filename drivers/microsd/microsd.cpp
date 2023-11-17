@@ -1,6 +1,11 @@
 #include "microsd.h"
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <fcntl.h>
 #include <iostream>
 #include <linux/spi/spidev.h>
+#include <linux/kernel.h>
 #include <unistd.h>
 
 MicroSD::~MicroSD(){
