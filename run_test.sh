@@ -1,0 +1,1 @@
+g++ tests/Temperature_Sensor/test_TempSensor.cpp drivers/TempSensor.cpp -o test_TempSensor && ./test_TempSensor
