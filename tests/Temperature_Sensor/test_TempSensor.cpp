@@ -92,7 +92,7 @@ void test_write16_1()
 
     // TODO: Assert i2c_smbus_write_word_data was called correctly (remember first and second byte should be flipped)
     assert(i2c_smbus_write_word_data_fake.call_count == 1);
-    assert(i2c_smbus_write_word_data_fake.arg0_val == 1);
+    assert(i2c_smbus_write_word_data_fake.arg0_val == 2);
     assert(i2c_smbus_write_word_data_fake.arg1_val == 0x01);
     assert(i2c_smbus_write_word_data_fake.arg2_val == 0x3412);
 
