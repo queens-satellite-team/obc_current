@@ -42,6 +42,10 @@ void test_TempSensorConstructor_1()
     // assert(ioctl_fake.arg2_val == MCP9808_I2CADDR_DEFAULT);
 }
 
+void test_TempSensorConstructor_1()
+{ // TODO: Test a failed construct
+}
+
 void test_TempSensorDestructor_1()
 {
     RESET_FAKE(snprintf);
@@ -117,8 +121,16 @@ void test_readTemp_1()
     assert(i2c_smbus_read_word_data_fake.arg1_val == 0x05);
 }
 
+void testtest_readTemp_2()
+{ // TODO: test negative temp read
+}
+
 void test_shutdown_1()
-{
+{ // TODO: test shutdown true
+}
+
+void test_shutdown_2()
+{ // TODO: test shutdown false
 }
 
 int main()
