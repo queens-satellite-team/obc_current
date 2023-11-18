@@ -26,6 +26,7 @@ void test_TempSensorConstructor_1()
 
     TempSensor sensor(1);
 
+// makes sure snprintf was called once
     assert(snprintf_fake.call_count == 1);
     // Skip rest of snprintf, params are pointers and fixed values
     // assert(snprintf_fake.arg0_val == ???)
@@ -42,8 +43,26 @@ void test_TempSensorConstructor_1()
     // assert(ioctl_fake.arg2_val == MCP9808_I2CADDR_DEFAULT);
 }
 
-void test_TempSensorConstructor_1()
+void test_TempSensorConstructor_2()
 { // TODO: Test a failed construct
+
+//reset fake functions
+  RESET_FAKE(snprintf);
+  RESET_FAKE(open);
+  RESET_FAKE(ioctl);
+  RESET_FAKE(close);
+  
+  snprintf_fake.return_val = 1;     // simulates snprintf function working
+  open_fake.return_val = -1;        // simulates open function failing
+  
+  TempSensor sensor(1);
+
+  
+  assert(snprintf_fake.call_count == 1);
+  assert(open_fake.call_count == 1);
+  assert(ioctl_fake.call_count == 0);
+  assert(close_fake.call_count == 0);
+
 }
 
 void test_TempSensorDestructor_1()
@@ -123,14 +142,31 @@ void test_readTemp_1()
 
 void testtest_readTemp_2()
 { // TODO: test negative temp read
+  RESET_FAKE(i2c_smbus_read_word_data);
+
+  i2c_smbus_read_word_data_fake.return_val = 0x1110
+
+  TempSensor sensor(1);
+  float temperature = sensor.readTemp(MCP9808_REG_AMBIENT_TEMP);
+
+  assert(temperature == -17);
+
+  assert(i2c_smbus_read_word_data_fake.call_count == 1);
+  assert(i2c_smbus_read_word_data_fake.arg0_val == 2);
+  assert(i2c_smbus_read_word_data_fake.arg1_val == 0x05);
 }
 
 void test_shutdown_1()
 { // TODO: test shutdown true
+
+
+
 }
 
 void test_shutdown_2()
 { // TODO: test shutdown false
+
+
 }
 
 int main()
