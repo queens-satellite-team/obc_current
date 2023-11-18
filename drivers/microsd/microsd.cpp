@@ -1,49 +1,44 @@
 #include "microsd.h"
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <fcntl.h>
+#include "spidevice.h"
 #include <iostream>
-#include <linux/spi/spidev.h>
-#include <linux/kernel.h>
-#include <unistd.h>
 
 MicroSD::~MicroSD(){
-    close(fd);
+    this->spi.releaseSpiFd();
 }
 
 MicroSD::MicroSD(){
-
+    this->spi = {
+        .busNum = 1,
+        .deviceId = 1,
+        .speed_hz = 1320000,
+        .delay_usecs = 0,
+        .bits_per_word = 32,
+        .cs_change = 0,
+        .word_delay_usecs = 0,
+    };
+    this->status = this->spi.setupSpiDevice();
 }
 
-MicroSD::MicroSD(const char* device, int cs, int baudrate)
-    : cs(cs) {
-
-
-
-}
-
-void MicroSD::initSPI(const char* device, int baudrate){
-    this->fd = open(device, O_RDWR);
-    if (fd < 0) {
-        std::cerr << "Can't open device" << "\n";
-    }
-
-    uint8_t mode = SPI_MODE_0;
-
-    int ret = ioctl(this->fd, SPI_IOC_WR_MODE, &mode);
-    if (ret == -1) {
-        std::cerr << "Can't set spi mode" << "\n";
-    }
-
-	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &this->spi.bits_per_word);
-	if (ret == -1) {
-		std::cerr << "can't set max speed hz" << "\n";
-    }
-
-    ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &this->spi.speed_hz);
-	if (ret == -1) {
-		std::cerr << "can't set max speed hz" << "\n";
-    }
+uint8_t* MicroSD::read(uint8_t addr) {
+    int size = 2;
+    uint8_t* tx = (uint8_t*)malloc(sizeof(uint8_t) * size);
+    uint8_t* rx = (uint8_t*)malloc(sizeof(uint8_t) * size);
+    tx[0] = 0;
+    tx[1] = 0;
+    spi.spiTransfer(tx, rx, size);
     
+    free(tx);
+    free(rx);
+    return rx;
+}
+
+int MicroSD::write(uint8_t addr, uint8_t *buf, int bytes) {
+    int size = bytes;
+    uint8_t* tx = (uint8_t*)malloc(sizeof(uint8_t) * (size + 1));
+    uint8_t* rx = (uint8_t*)malloc(sizeof(uint8_t) * (size + 1));
+    tx[0] = addr;
+    spi.spiTransfer(tx, rx, size);
+    free(tx);
+    free(rx);
+    return -1;
 }

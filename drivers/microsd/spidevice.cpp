@@ -1,9 +1,9 @@
 #include "spidevice.h"
 
-int initSpiFd(int *fd, int busNum, int deviceID){
+int spi_device::initSpiFd(){
     char pathname[256];
 
-    int status = snprintf(pathname, sizeof(pathname), SPI_DEVICE_PATH, deviceID, busNum);
+    int status = snprintf(pathname, sizeof(pathname), SPI_DEVICE_PATH, deviceId, busNum);
     
     //check status to be good
     if (status < 0) {
@@ -11,9 +11,9 @@ int initSpiFd(int *fd, int busNum, int deviceID){
         return EXIT_FAILURE;
     }
 
-    *fd = open(pathname, O_RDWR);
+    fd = open(pathname, O_RDWR);
 
-    if (*fd < 0) {
+    if (fd < 0) {
 		perror("Could not open SPI file");
         return EXIT_FAILURE;
     }
@@ -21,14 +21,14 @@ int initSpiFd(int *fd, int busNum, int deviceID){
     return EXIT_SUCCESS;
 }
 
-int releaseSpiFd(int fd){
+int spi_device::releaseSpiFd(){
     return close(fd);
 }
 
-int setupSpiDevice() {
-    int fd, status;
+int spi_device::setupSpiDevice() {
+    int status;
     
-    status = initSpiFd(&fd, 0, 0);
+    status = this->initSpiFd();
 
     if (status == EXIT_FAILURE) {
         return EXIT_FAILURE;
@@ -58,7 +58,7 @@ int setupSpiDevice() {
     return EXIT_SUCCESS;
 }
 
-int spiTransfer(int fd, uint8_t *tx, uint8_t *rx, int bytes){
+int spi_device::spiTransfer(uint8_t *tx, uint8_t *rx, int bytes){
     int status, res;
     struct spi_ioc_transfer xfer;
     
@@ -79,39 +79,3 @@ int spiTransfer(int fd, uint8_t *tx, uint8_t *rx, int bytes){
 
     return EXIT_SUCCESS;
 }
-
-int doSPI(){
-    const char* name = "something";
-    struct spi_ioc_transfer xfer[2];
-    unsigned char buf[32], *bp;
-    int len, status;
-
-    int fd = open(name, O_RDWR);
-    if (fd < 0) {
-        perror("Could not open SPI file");
-        return -1;
-    }
-
-    memset(xfer, 0, sizeof xfer);
-    memset(buf, 0, sizeof buf);
-    len = sizeof buf;
-
-    buf[0] = 0x00; // make first element of the buffer the command
-    
-    xfer[0].tx_buf = (unsigned long) buf;
-    xfer[0].len = 1;
-
-    xfer[1].rx_buf = (unsigned long) buf;
-    xfer[1].len = 6;
-
-    status = ioctl(fd, SPI_IOC_MESSAGE(2), xfer);
-    if(status < 0){
-        perror("Could not send SPI message");
-        return -1;
-    }
-
-    printf("%s\n", buf);
-
-    return 0;
-}   
-
