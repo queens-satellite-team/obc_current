@@ -4,7 +4,8 @@ int spi_device::initSpiFd(){
     char pathname[256];
 
     int status = snprintf(pathname, sizeof(pathname), SPI_DEVICE_PATH, deviceId, busNum);
-    
+    printf("Attempting to setup SPI for %s\n", pathname);
+
     //check status to be good
     if (status < 0) {
 		perror("Invalid Bus Number and/or Device ID");

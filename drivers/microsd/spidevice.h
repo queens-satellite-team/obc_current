@@ -12,7 +12,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#define SPI_DEVICE_PATH "/dev/spidev%d-%d"
+#define SPI_DEVICE_PATH "/dev/spidev%d.%d"
 
 struct spi_device {
     int fd;
