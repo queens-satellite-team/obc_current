@@ -1,10 +1,12 @@
 #include "../fff.h"
 #include "../../drivers/TempSensor.h"
 #include <cassert>
+#include <iostream>
 
 DEFINE_FFF_GLOBALS;
 
-// Define fake functions
+// Define fake functions for FFF.h
+// Replaces implementation of i2c functions
 FAKE_VALUE_FUNC(int, i2c_smbus_read_word_data, int, uint8_t);
 FAKE_VALUE_FUNC(int, i2c_smbus_write_word_data, int, uint8_t, uint16_t);
 FAKE_VALUE_FUNC_VARARG(int, snprintf, char *, size_t, const char *, ...);
@@ -14,6 +16,32 @@ FAKE_VALUE_FUNC(int, close, int);
 
 void test_TempSensorConstructor_1()
 {
+    std::cout << "test_TempSensorConstructor_1: Testing failed constructor" << std::endl;
+    RESET_FAKE(snprintf);
+    RESET_FAKE(open);
+    RESET_FAKE(ioctl);
+    RESET_FAKE(close);
+
+    snprintf_fake.return_val = 1;
+    open_fake.return_val = -1;
+    ioctl_fake.return_val = 3;
+    close_fake.return_val = 4;
+
+    TempSensor sensor(1);
+
+    assert(snprintf_fake.call_count == 1);
+    // Skip rest of snprintf, params are pointers and fixed values
+    // assert(snprintf_fake.arg0_val == ???)
+
+    assert(open_fake.call_count == 1);
+    assert(open_fake.arg1_val == O_RDWR);
+
+    assert(ioctl_fake.call_count == 0);
+}
+
+void test_TempSensorConstructor_2()
+{
+    std::cout << "test_TempSensorConstructor_2: Testing working constructor" << std::endl;
     RESET_FAKE(snprintf);
     RESET_FAKE(open);
     RESET_FAKE(ioctl);
@@ -26,7 +54,7 @@ void test_TempSensorConstructor_1()
 
     TempSensor sensor(1);
 
-// makes sure snprintf was called once
+    // makes sure snprintf was called once
     assert(snprintf_fake.call_count == 1);
     // Skip rest of snprintf, params are pointers and fixed values
     // assert(snprintf_fake.arg0_val == ???)
@@ -44,29 +72,28 @@ void test_TempSensorConstructor_1()
 }
 
 void test_TempSensorConstructor_2()
-{ // TODO: Test a failed construct
+{
+    std::cout << "test_TempSensorConstructor_2: Testing failed constructor" << std::endl;
+    // reset fake functions
+    RESET_FAKE(snprintf);
+    RESET_FAKE(open);
+    RESET_FAKE(ioctl);
+    RESET_FAKE(close);
 
-//reset fake functions
-  RESET_FAKE(snprintf);
-  RESET_FAKE(open);
-  RESET_FAKE(ioctl);
-  RESET_FAKE(close);
-  
-  snprintf_fake.return_val = 1;     // simulates snprintf function working
-  open_fake.return_val = -1;        // simulates open function failing
-  
-  TempSensor sensor(1);
+    snprintf_fake.return_val = 1; // simulates snprintf function working
+    open_fake.return_val = -1;    // simulates open function failing
 
-  
-  assert(snprintf_fake.call_count == 1);
-  assert(open_fake.call_count == 1);
-  assert(ioctl_fake.call_count == 0);
-  assert(close_fake.call_count == 0);
+    TempSensor sensor(1);
 
+    assert(snprintf_fake.call_count == 1);
+    assert(open_fake.call_count == 1);
+    assert(ioctl_fake.call_count == 0);
+    assert(close_fake.call_count == 0);
 }
 
 void test_TempSensorDestructor_1()
 {
+    std::cout << "test_TempSensorDestructor_1: Testing destructor" << std::endl;
     RESET_FAKE(snprintf);
     RESET_FAKE(open);
     RESET_FAKE(ioctl);
@@ -86,6 +113,7 @@ void test_TempSensorDestructor_1()
 
 void test_read16_1()
 {
+    std::cout << "test_read16_1: Testing reading 0x1234" << std::endl;
     // SetsUp i2c_smbus_read_word_data with no history and fake return
     RESET_FAKE(i2c_smbus_read_word_data);
     i2c_smbus_read_word_data_fake.return_val = 0x1234;
@@ -105,6 +133,8 @@ void test_read16_1()
 
 void test_write16_1()
 {
+    std::cout << "test_write16_1: Testing writing 0x1234" << std::endl;
+
     RESET_FAKE(i2c_smbus_write_word_data);
     i2c_smbus_write_word_data_fake.return_val = true;
 
@@ -119,6 +149,8 @@ void test_write16_1()
 
 void test_readTemp_1()
 {
+    std::cout << "test_readTemp_1: Testing reading 0x65C1 as 22.3125" << std::endl;
+
     // Resetting the FFF call history
     RESET_FAKE(i2c_smbus_read_word_data);
 
@@ -140,43 +172,77 @@ void test_readTemp_1()
     assert(i2c_smbus_read_word_data_fake.arg1_val == 0x05);
 }
 
-void testtest_readTemp_2()
-{ // TODO: test negative temp read
-  RESET_FAKE(i2c_smbus_read_word_data);
+void test_readTemp_2()
+{
+    RESET_FAKE(i2c_smbus_read_word_data);
 
-  i2c_smbus_read_word_data_fake.return_val = 0x1110
+    i2c_smbus_read_word_data_fake.return_val = 0x1110;
 
-  TempSensor sensor(1);
-  float temperature = sensor.readTemp(MCP9808_REG_AMBIENT_TEMP);
+    TempSensor sensor(1);
+    float temperature = sensor.readTemp(MCP9808_REG_AMBIENT_TEMP);
 
-  assert(temperature == -17);
+    assert(temperature == -17);
 
-  assert(i2c_smbus_read_word_data_fake.call_count == 1);
-  assert(i2c_smbus_read_word_data_fake.arg0_val == 2);
-  assert(i2c_smbus_read_word_data_fake.arg1_val == 0x05);
+    assert(i2c_smbus_read_word_data_fake.call_count == 1);
+    assert(i2c_smbus_read_word_data_fake.arg0_val == 2);
+    assert(i2c_smbus_read_word_data_fake.arg1_val == 0x05);
 }
 
 void test_shutdown_1()
-{ // TODO: test shutdown true
+{
+    std::cout << "test_shutdown_1: Testing shutting up" << std::endl;
+    RESET_FAKE(i2c_smbus_read_word_data);
+    RESET_FAKE(i2c_smbus_write_word_data);
 
+    i2c_smbus_read_word_data_fake.return_val = 0x0000;
+    i2c_smbus_write_word_data_fake.return_val = 1;
 
+    TempSensor sensor(1);
+    sensor.shutdown(true);
 
+    assert(i2c_smbus_read_word_data_fake.call_count == 1);
+    assert(i2c_smbus_read_word_data_fake.arg0_val == 2);
+    assert(i2c_smbus_read_word_data_fake.arg1_val == 0x01);
+
+    assert(i2c_smbus_write_word_data_fake.call_count == 1);
+    assert(i2c_smbus_write_word_data_fake.arg0_val == 2);
+    assert(i2c_smbus_write_word_data_fake.arg1_val == 0x01);
+    assert(i2c_smbus_write_word_data_fake.arg2_val == 0x0001);
 }
 
 void test_shutdown_2()
-{ // TODO: test shutdown false
+{
+    std::cout << "test_shutdown_2: Testing starting up" << std::endl;
+    RESET_FAKE(i2c_smbus_read_word_data);
+    RESET_FAKE(i2c_smbus_write_word_data);
 
+    i2c_smbus_read_word_data_fake.return_val = 0xFFFF;
+    i2c_smbus_write_word_data_fake.return_val = 1;
 
+    TempSensor sensor(1);
+    sensor.shutdown(false);
+
+    assert(i2c_smbus_read_word_data_fake.call_count == 1);
+    assert(i2c_smbus_read_word_data_fake.arg0_val == 2);
+    assert(i2c_smbus_read_word_data_fake.arg1_val == 0x01);
+
+    assert(i2c_smbus_write_word_data_fake.call_count == 1);
+    assert(i2c_smbus_write_word_data_fake.arg0_val == 2);
+    assert(i2c_smbus_write_word_data_fake.arg1_val == 0x01);
+    assert(i2c_smbus_write_word_data_fake.arg2_val == 0xFFFE);
 }
 
 int main()
 {
     test_TempSensorConstructor_1();
+    test_TempSensorConstructor_2();
     test_TempSensorDestructor_1();
     test_read16_1();
     test_write16_1();
     test_readTemp_1();
+    test_readTemp_2();
     test_shutdown_1();
+    test_shutdown_2();
 
     // Add more tests as needed
     return 0;
