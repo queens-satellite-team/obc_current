@@ -1,11 +1,12 @@
 #ifndef TEMP_SENSOR_H
 #define TEMP_SENSOR_H
 
-extern "C"
-{
+// extern "C"
+// {
 #include <linux/i2c-dev.h>
+#include <linux/i2c.h>
 #include <i2c/smbus.h>
-}
+// }
 #include <iostream>
 #include <unistd.h>
 #include <cmath>
@@ -40,6 +41,8 @@ class TempSensor
 public:
   TempSensor(int busNumber);
   ~TempSensor();
+  uint16_t read16(int reg);
+  bool write16(int reg, uint16_t t);
   float readTemp(int reg);
   bool writeTemp(int reg, float temp);
   bool shutdown(bool sw);
