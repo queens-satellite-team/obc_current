@@ -1,12 +1,12 @@
 #ifndef TEMP_SENSOR_H
 #define TEMP_SENSOR_H
 
-// extern "C"
-// {
+extern "C"
+{
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
 #include <i2c/smbus.h>
-// }
+}
 #include <iostream>
 #include <unistd.h>
 #include <cmath>
@@ -14,6 +14,7 @@
 #include <sys/ioctl.h>
 #include <limits>
 #include <bitset>
+#include <cstdint>
 
 #define MCP9808_I2CADDR_DEFAULT 0x18 ///< I2C address
 #define MCP9808_REG_CONFIG 0x01      ///< MCP9808 config register

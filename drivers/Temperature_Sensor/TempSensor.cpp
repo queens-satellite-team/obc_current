@@ -110,17 +110,3 @@ bool TempSensor::shutdown(bool sw)
   }
   return true;
 }
-
-// int main()
-// {
-//   std::cout << "Starting code" << std::endl;
-//   TempSensor sensor(1);
-
-//   std::cout << "Ran constructor" << std::endl;
-
-//   for (int i = 0; i < 5; i++)
-//   {
-//     std::cout << sensor.readTemp(MCP9808_REG_AMBIENT_TEMP) << std::endl;
-//   }
-//   return 0;
-// }
