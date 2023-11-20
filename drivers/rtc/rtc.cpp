@@ -9,36 +9,33 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
 
 extern "C" {
     #include <i2c/smbus.h>
 }
 
-int initI2C(int adapter){
+int initI2C(int* fd, int adapter){
     char filename[20];
-    snprintf(filename, 19, "/dev/i2c-%d", adapter);
-    int file = open(filename, O_RDWR);
+    snprintf(filename, 19, RTC_DEVICE_PATH, adapter);
     
-    if (file < 0) {
+    *fd = open(filename, O_RDWR);  
+    if (*fd < 0) {
         perror("Failed to open the i2c bus");
-        exit(-1);
+        return -1;
     }
-
-    if (ioctl(file, I2C_SLAVE, RTC_SLAVE)) {
+    
+    int status = ioctl(*fd, I2C_SLAVE, RTC_SLAVE);
+    if (status < 0) {
         perror("Failed to acqurie bus access and/or talk to slave\n");
-        exit(-1);
+        return -1;
     }
     
     printf("INFO: Successfullly Initialized i2c\n");
 
-    return file;   
-}
-
-RTC::~RTC() {
-    this->closeFile();
+    return status;   
 }
 
 // Default Constructor
@@ -47,18 +44,46 @@ RTC::RTC() : RTC(0, 0, "0-1-1 0:0:0", 0) {}
 RTC::RTC(int adapter) : RTC(0, 0, "0-1-1 0:0:0", adapter) {}
 
 // Constructor that sets the specified values in the rtc
-RTC::RTC(int battery, int clock, std::string datetime, int adapter){
-    this->fd = initI2C(adapter);
-
-    if (this->fd >= 0)
-        this->i2c_status = 1;
-    
-    if (this->i2c_status){
+RTC::RTC(int battery, int clock, std::string datetime, int adapter){    
+    if (this->init(adapter)) {
         this->setBattery(battery);
         this->setClock(clock);
         this->setDateTime(datetime);
     }
 }   
+
+RTC::~RTC() {
+    this->releaseFd();
+}
+
+int RTC::init(int adapter) {
+    int status = initI2C(&this->fd, adapter);
+
+    if (status < 0) {
+        this->i2c_status = I2C_CLOSED;
+        perror("Could not initialize real time clock");
+        return -1;
+    }
+
+    this->i2c_status = I2C_OPEN;
+    printf("INFO: Successfully initialized real time clock");
+    
+    return 1;
+}
+
+int RTC::releaseFd() {
+    this->i2c_status = I2C_CLOSED;
+
+    int status = close(this->fd);
+    
+    if (status < 0) {
+        perror("Could not close file descriptor");
+    } else {
+        printf("INFO: Closed file descripter for RTC\n");
+    }
+
+    return status;
+}
 
 // resets the rtc to default values
 int RTC::reset() {
@@ -68,11 +93,6 @@ int RTC::reset() {
     return 0;
 }
 
-int RTC::closeFile() {
-    this->i2c_status = 0;
-    return close(this->fd);
-}
-
 void RTC::print(){
     std::string datetime = this->getDateTime();
     std::cout << datetime << "\n";
@@ -80,6 +100,11 @@ void RTC::print(){
 
 // Get the byte at the specified register from the rtc
 int RTC::getRegister(Register reg) {
+    
+    if (this->i2c_status != I2C_OPEN){
+        return -1;
+    }
+
     int data = i2c_smbus_read_byte_data(this->fd, reg);
 
     if (data == -1) {
@@ -161,14 +186,19 @@ std::string RTC::getDateTime() {
 }
 
 //Sets an internal register with a byte
-int RTC::setRegister(Register reg, __u8 byte) {
-    int write = i2c_smbus_write_byte_data(this->fd, reg, byte);
-    return write;
+int RTC::setRegister(Register reg, uint8_t byte) {
+    
+    if (this->i2c_status != I2C_OPEN){
+        return -1;
+    }
+
+    int status = i2c_smbus_write_byte_data(this->fd, reg, byte);
+    return status;
 }
 
 //Sets the battery bit to the specified state
 int RTC::setBattery(int state) {
-    __u8 value = this->getRegister(WEEKDAY);
+    uint8_t value = this->getRegister(WEEKDAY);
     if (state) {
         value |= 0b00001000;
     } else {
@@ -181,7 +211,7 @@ int RTC::setBattery(int state) {
 
 //Sets the clock bit to the specified state
 int RTC::setClock(int state) {
-    __u8 value = this->getRegister(SEC);
+    uint8_t value = this->getRegister(SEC);
 
     if (state) {
         value |= 0b10000000;
@@ -196,9 +226,9 @@ int RTC::setClock(int state) {
 //Sets the seconds bits to the specified value
 int RTC::setSeconds(int value) {
     if (verifyDate(SEC, value)) {
-        __u8 enc = RTC::encodeDecimal(value);
-        __u8 clock = this->getClock();
-        __u8 byte = (clock << 7) | enc;
+        uint8_t enc = RTC::encodeDecimal(value);
+        uint8_t clock = this->getClock();
+        uint8_t byte = (clock << 7) | enc;
         return this->setRegister(SEC, byte);
     }
     return -1;
@@ -207,7 +237,7 @@ int RTC::setSeconds(int value) {
 //Sets the minutes bits to the specified value
 int RTC::setMinutes(int value) {
     if (verifyDate(MIN, value)) {
-        __u8 enc = RTC::encodeDecimal(value);
+        uint8_t enc = RTC::encodeDecimal(value);
         return this->setRegister(MIN, enc);
     }
     return -1;
@@ -216,9 +246,9 @@ int RTC::setMinutes(int value) {
 //Sets the hours bits
 int RTC::setHours(int value) {
     if (verifyDate(HOUR, value)) {
-        __u8 raw = this->getRegister(HOUR);
-        __u8 enc = RTC::encodeDecimal(value);
-        __u8 byte = (raw & 0b01000000) | enc;
+        uint8_t raw = this->getRegister(HOUR);
+        uint8_t enc = RTC::encodeDecimal(value);
+        uint8_t byte = (raw & 0b01000000) | enc;
         return this->setRegister(HOUR, enc);
     }
     return -1;
@@ -227,9 +257,9 @@ int RTC::setHours(int value) {
 //Sets the weekday
 int RTC::setWeekDay(int value) {
     if (verifyDate(WEEKDAY, value)) {
-        __u8 raw = this->getRegister(WEEKDAY);
-        __u8 enc = RTC::encodeDecimal(value);
-        __u8 byte = (raw & 0b00100000) | enc;
+        uint8_t raw = this->getRegister(WEEKDAY);
+        uint8_t enc = RTC::encodeDecimal(value);
+        uint8_t byte = (raw & 0b00100000) | enc;
         return this->setRegister(WEEKDAY, enc);
     }
     return -1;
@@ -238,7 +268,7 @@ int RTC::setWeekDay(int value) {
 //Sets the date
 int RTC::setDate(int value) {
     if (verifyDate(DATE, value)) {
-        __u8 enc = RTC::encodeDecimal(value);
+        uint8_t enc = RTC::encodeDecimal(value);
         return this->setRegister(WEEKDAY, enc);
     }
     return -1;
@@ -247,9 +277,9 @@ int RTC::setDate(int value) {
 //Sets the month
 int RTC::setMonth(int value) {
     if (verifyDate(MONTH, value)) {
-        __u8 raw = this->getRegister(MONTH);
-        __u8 enc = RTC::encodeDecimal(value);
-        __u8 byte = (raw & 0b11100000) | enc;
+        uint8_t raw = this->getRegister(MONTH);
+        uint8_t enc = RTC::encodeDecimal(value);
+        uint8_t byte = (raw & 0b11100000) | enc;
         return this->setRegister(MONTH, enc);
     }
     return -1;
@@ -258,7 +288,7 @@ int RTC::setMonth(int value) {
 //Sets the year
 int RTC::setYear(int value) {
     if (verifyDate(YEAR, value)) {
-        __u8 enc = RTC::encodeDecimal(value - 2000);
+        uint8_t enc = RTC::encodeDecimal(value - 2000);
         return this->setRegister(YEAR, enc);
     }
     return -1;
@@ -290,9 +320,9 @@ int RTC::setDateTime(struct tm tm) {
     return 1;
 }
 
-__u8 RTC::encodeDecimal(int value) {
-    __u8 ones = value % 10;
-    __u8 tens = __u8(value / 10);
+uint8_t RTC::encodeDecimal(int value) {
+    uint8_t ones = value % 10;
+    uint8_t tens = uint8_t(value / 10);
     return (tens << 4) + ones;
 }
 
