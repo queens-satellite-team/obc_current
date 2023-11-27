@@ -40,7 +40,7 @@ int initI2C(int* fd, int adapter){
 }
 
 // Default Constructor
-RTC::RTC() : RTC(0, 0, DEFAULT_TIME, 0) {}
+RTC::RTC() : RTC(0, 0, DEFAULT_TIME, DEFAULT_I2C_ADAPTER) {}
 
 RTC::RTC(int adapter) : RTC(0, 0, DEFAULT_TIME, adapter) {}
 

@@ -22,6 +22,7 @@
 #define RTC_DEVICE_PATH "/dev/i2c-%d"
 #define DEFAULT_TIME "0-1-1 0:0:0"
 #define TIME_FORMAT "%Y-%m-%d %H:%M:%S"
+#define DEFAULT_I2C_ADAPTER 1
 
 #define I2C_OPEN 0
 #define I2C_REGERROR -1
