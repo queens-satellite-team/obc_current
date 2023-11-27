@@ -11,15 +11,18 @@
 #include "CppUTest/CommandLineTestRunner.h"
 #include <unistd.h>
 
-TEST_GROUP(RealTimeClock){
+TEST_GROUP(RTCHW){
     RTC* rtc;
     void setup(){
         rtc = new RTC();
     }
+    void teardown(){
+        delete rtc;
+    }
 };
 
 // Test setClock()
-TEST(RealTimeClock, SetClock) {
+TEST(RTCHW, SetClock) {
     int in, out;
 
     in = 1;
@@ -34,7 +37,7 @@ TEST(RealTimeClock, SetClock) {
 }
 
 // Test setBattery()
-TEST(RealTimeClock, SetBattery) {
+TEST(RTCHW, SetBattery) {
     int in, out;
     
     in = 1;
@@ -49,10 +52,10 @@ TEST(RealTimeClock, SetBattery) {
 }
 
 // Test Setting of Date time (datetime uses all the internal registers)
-TEST(RealTimeClock, SettingDateTime) {
+TEST(RTCHW, SettingDateTime) {
     rtc->setClock(1);
     
-    std::string dateTimeIn = "5-8-2 5:3:6";
+    std::string dateTimeIn = "2005-8-2 5:3:6";
     rtc->setDateTime(dateTimeIn);
 
     std::string dateTimeOut = rtc->getDateTime();
@@ -60,7 +63,8 @@ TEST(RealTimeClock, SettingDateTime) {
     STRCMP_EQUAL(dateTimeIn.c_str(), dateTimeOut.c_str());
 }
 
-TEST(RealTimeClock, ClockTick) {
+TEST(RTCHW, ClockTick) {
+    sleep(5); // clock takes some time to start ticking
     int s0 = rtc->getSeconds();
     sleep(2);
     int s1 = rtc->getSeconds();
@@ -77,5 +81,5 @@ TEST(RealTimeClock, ClockTick) {
 }
 
 int main(int argc, char* argv[]) {
-  return CommandLineTestRunner::RunAllTests(argc, argv);
+    return CommandLineTestRunner::RunAllTests(argc, argv);
 }

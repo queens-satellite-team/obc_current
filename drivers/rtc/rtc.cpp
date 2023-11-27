@@ -20,16 +20,17 @@ extern "C" {
 int initI2C(int* fd, int adapter){
     char filename[20];
     snprintf(filename, 19, RTC_DEVICE_PATH, adapter);
+    printf("I2C path: %s\n", filename);
     
     *fd = open(filename, O_RDWR);  
     if (*fd < 0) {
-        perror("Failed to open the i2c bus");
+        perror("Failed to open the i2c bus\n");
         return -1;
     }
     
     int status = ioctl(*fd, I2C_SLAVE, RTC_SLAVE);
     if (status < 0) {
-        perror("Failed to acqurie bus access and/or talk to slave\n");
+        perror("Failed to acquire bus access and/or talk to slave\n");
         return -1;
     }
     
@@ -39,9 +40,9 @@ int initI2C(int* fd, int adapter){
 }
 
 // Default Constructor
-RTC::RTC() : RTC(0, 0, "0-1-1 0:0:0", 0) {}
+RTC::RTC() : RTC(0, 0, DEFAULT_TIME, 0) {}
 
-RTC::RTC(int adapter) : RTC(0, 0, "0-1-1 0:0:0", adapter) {}
+RTC::RTC(int adapter) : RTC(0, 0, DEFAULT_TIME, adapter) {}
 
 // Constructor that sets the specified values in the rtc
 RTC::RTC(int battery, int clock, std::string datetime, int adapter){    
@@ -71,6 +72,7 @@ int RTC::init(int adapter) {
     return 1;
 }
 
+// Very important to make sure this gets called
 int RTC::releaseFd() {
     this->i2c_status = I2C_CLOSED;
 
@@ -89,7 +91,7 @@ int RTC::releaseFd() {
 int RTC::reset() {
     this->setBattery(0);
     this->setClock(0);
-    this->setDateTime("0-1-1 0:0:0");
+    this->setDateTime(DEFAULT_TIME);
     return 0;
 }
 
@@ -130,21 +132,21 @@ int RTC::getBattery() {
 //Gets the current seconds 
 int RTC::getSeconds() {
     int value = this->getRegister(SEC) & 0b01111111;
-    int seconds = (value >> 4) * 10 + value & 0b1111;
+    int seconds = (value >> 4) * 10 + (value & 0b1111);
     return seconds;
 }
 
 //Gets the current minutes
 int RTC::getMinutes() {
     int value = this->getRegister(MIN) & 0b01111111;
-    int minutes = (value >> 4) * 10 + value & 0b1111;
+    int minutes = (value >> 4) * 10 + (value & 0b1111);
     return minutes;
 }
 
 //Gets the current Hours
 int RTC::getHours() {
     int value = this->getRegister(HOUR) & 0b00111111;
-    return (value >> 4) * 10 + value & 0b1111;
+    return (value >> 4) * 10 + (value & 0b1111);
 }
 
 //Gets the current Weekday //is this needed?
@@ -156,19 +158,19 @@ int RTC::getWeekDay() {
 //Gets the current Date in the month
 int RTC::getDate() {
     int value = this->getRegister(DATE) & 0b00111111;
-    return (value >> 4) * 10 + value & 0xF;
+    return (value >> 4) * 10 + (value & 0xF);
 }
 
 //Gets the current month in the year
 int RTC::getMonth() {
     int value = this->getRegister(MONTH) & 0b00011111;
-    return (value >> 4) * 10 + value & 0xF;
+    return (value >> 4) * 10 + (value & 0xF);
 }
 
 //Gets the current year - 2000
 int RTC::getYear() {
     int value = this->getRegister(YEAR) & 0b11111111;
-    return (value >> 4) * 10 + value & 0xF;
+    return (value >> 4) * 10 + (value & 0xF);
 }
 
 //Formats the internal values into a string
@@ -178,7 +180,7 @@ std::string RTC::getDateTime() {
     int min = this->getMinutes();
     int hour = this->getHours();
     int date = this->getDate();
-    int month = this->getMonth();
+    int month = this->getMonth() + 1;
     int year = this->getYear() + 2000;
     char datetime[50];
     std::sprintf(datetime, "%d-%d-%d %d:%d:%d", year, month, date, hour, min, sec);
@@ -269,7 +271,7 @@ int RTC::setWeekDay(int value) {
 int RTC::setDate(int value) {
     if (verifyDate(DATE, value)) {
         uint8_t enc = RTC::encodeDecimal(value);
-        return this->setRegister(WEEKDAY, enc);
+        return this->setRegister(DATE, enc);
     }
     return -1;
 }
@@ -297,7 +299,7 @@ int RTC::setYear(int value) {
 // Format is '%Y-%m-%d %H:%M:%S'
 int RTC::setDateTime(std::string time) {
     struct tm tm;
-    if(strptime(time.c_str(), "%Y-%m-%d %H:%M:%S", &tm)){
+    if(strptime(time.c_str(), TIME_FORMAT, &tm)){
         this->setSeconds(tm.tm_sec);
         this->setMinutes(tm.tm_min);
         this->setHours(tm.tm_hour);
@@ -338,7 +340,7 @@ bool RTC::verifyDate(Register reg, int value) {
     if (reg == MONTH)
         return 1 <= value && value <= 12;
     if (reg == YEAR)
-        return 0 <= value && value <= 99;
+        return 2000 <= value && value <= 2099;
 
     return false;
 }

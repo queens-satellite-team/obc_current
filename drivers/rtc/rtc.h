@@ -20,6 +20,8 @@
 
 #define RTC_SLAVE 0b01101111 // 0x6F
 #define RTC_DEVICE_PATH "/dev/i2c-%d"
+#define DEFAULT_TIME "0-1-1 0:0:0"
+#define TIME_FORMAT "%Y-%m-%d %H:%M:%S"
 
 #define I2C_OPEN 0
 #define I2C_REGERROR -1
@@ -29,6 +31,7 @@ int initI2C(int* fd, int adapter);
 
 class RTC {
     // Addresses for Internal Registers
+public: 
     enum Register : uint8_t {
         SEC = 0x00,
         MIN = 0x01,
