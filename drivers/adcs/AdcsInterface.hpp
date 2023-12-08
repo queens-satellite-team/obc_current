@@ -11,6 +11,8 @@
 #ifndef OBC_ADCS_H
 #define OBC_ADCS_H
 
+#include <stddef.h>
+
 class AdcsInterface {
 
     public:
@@ -52,8 +54,8 @@ class AdcsInterface {
         };
         
         // Placeholder for sending serial data to ADCS
-        void SendCommand(int command);
-        void SendCommandWithData(int command, void* data, size_t length);
+        int SendCommand(int command);
+        int SendCommandWithData(int command, void* data, size_t length);
 
 };
 
