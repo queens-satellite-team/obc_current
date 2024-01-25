@@ -2,6 +2,13 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
+// BEFORE YOU MAKE CHANGES:   git fetch
+//                            git pull
+
+// When you've made changes:  git add <filename>
+//                            git commit -m "your message here"
+//                            git push
+
 
 // This code maps function IDs to fuctions using function pointers and unordered maps
 
