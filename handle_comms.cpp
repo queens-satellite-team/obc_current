@@ -9,6 +9,9 @@
 // Maps function_id to function_pointer (location of code)
 std::unordered_map<uint8_t, void(*)()> methodMap; // unordered map named methodMap, maps uint8_t keys to function pointers. The function pointers are of type void(*)(), meaning they point to functions that take no arguments and return void.
 
+Comms::Comms(){}
+Comms::~Comms(){}
+
 uint8_t Comms::read8(int reg) {
     // This function is a placeholder for reading data, will actually be comms data from i2c
     return 0x01;
@@ -30,7 +33,7 @@ void Comms::fileTransfer(){
     int param2 = read8(1);
     int param3 = read8(2);
 }
- 
+
 
 void Comms::callFunction() {
     // Function is responsible for looking up a function pointer in methodMap based on a given function ID obtained from read8(0). If it finds a matching function, it calls it. Otherwise, it reports an error.
