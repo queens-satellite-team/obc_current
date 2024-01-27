@@ -37,15 +37,76 @@ extern "C"
 #define MCP9808_REG_DEVICE_ID 0x07    ///< device ID
 #define MCP9808_REG_RESOLUTION 0x08   ///< resolutin
 
+/**
+ * @brief TempSensor encapsulates the temperature sensor and communication
+ *
+ * This class encapsulates a MCP9808 temperature sensor and provides methods for
+ * reading the temperature and various communications.
+ */
 class TempSensor
 {
 public:
+  /**
+   * @brief Constructs a new TempSensor object
+   *
+   * @param busNumber int representing the i2c bus the sensor is accessible from
+   */
   TempSensor(int busNumber);
+
+  /**
+   * @brief Destroys the TempSensor object
+   */
   ~TempSensor();
+
+  /**
+   * @brief Reads a 16 bit value from the register
+   *
+   * @param reg int representing the register to check over i2c
+   *
+   * @return uint16 value of the 16 bits
+   */
   uint16_t read16(int reg);
+
+  /**
+   * @brief Writes a 16 bit value to the register
+   *
+   * @param reg int representing the register to write to
+   *
+   * @param t uint16 representing the 16 bit value to write
+   *
+   * @return bool representing if succeeds
+   */
   bool write16(int reg, uint16_t t);
+
+  /**
+   * @brief Reads the celsius temperature from the specified register
+   *
+   * @param reg int representing the register
+   *
+   * @return float of celsius temperature
+   */
   float readTemp(int reg);
+
+  /**
+   * @brief Writes the celsius temperature to the specified register
+   *
+   * Not used currently
+   *
+   * @param reg int of register to write to
+   *
+   * @param temp float of celsius temperature
+   *
+   * @return bool representing success
+   */
   bool writeTemp(int reg, float temp);
+
+  /**
+   * @brief Shuts down or starts ups the temperature sensor
+   *
+   * @param sw if true then shutdown, if false the startup
+   *
+   * @return bool representing success
+   */
   bool shutdown(bool sw);
 
 private:
