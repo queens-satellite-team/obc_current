@@ -7,7 +7,7 @@
 // This code maps function IDs to fuctions using function pointers and unordered maps
 
 // Maps function_id to function_pointer (location of code)
-std::unordered_map<uint8_t, std::pair<int, void(Comms::*)()>>methodMap; // unordered map named methodMap, maps uint8_t keys to function pointers. The function pointers are of type void(*)(), meaning they point to functions that take no arguments and return void.
+std::unordered_map<uint8_t, std::pair<int, void(*)()>>methodMap; // unordered map named methodMap, maps uint8_t keys to function pointers. The function pointers are of type void(*)(), meaning they point to functions that take no arguments and return void.
 
 Comms::Comms(){}
 Comms::~Comms(){}
@@ -51,7 +51,7 @@ void Comms::callFunction() {
             int args = read8(i + 1);
         }
 
-        (this->*(it->second.second))();
+        it->second.second();
         
 
     } else {
@@ -61,14 +61,14 @@ void Comms::callFunction() {
 }
  int main() {
     // Create an instance of the Comms class
-    Comms commsInstance;
+    // Comms commsInstance;
 
     // Define function mappings
-    methodMap[1] = std::make_pair(2, &Comms::modeSwitch);
-    methodMap[2] = std::make_pair(3, &Comms::fileTransfer);
+    Comms::methodMap[1] = std::make_pair(2, &Comms::modeSwitch);
+    Comms::methodMap[2] = std::make_pair(3, &Comms::fileTransfer);
 
     // Test calling a function
-    commsInstance.callFunction();
+    Comms::callFunction();
 
     return 0;
 }
