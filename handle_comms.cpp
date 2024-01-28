@@ -7,7 +7,7 @@
 // This code maps function IDs to fuctions using function pointers and unordered maps
 
 // Maps function_id to function_pointer (location of code)
-std::unordered_map<uint8_t, std::pair<int, void(*)()>> Comms::methodMap; // unordered map named methodMap, maps uint8_t keys to function pointers. The function pointers are of type void(*)(), meaning they point to functions that take no arguments and return void.
+std::unordered_map<uint8_t, std::pair<int, void(*)()> > Comms::methodMap; // unordered map named methodMap, maps uint8_t keys to function pointers. The function pointers are of type void(*)(), meaning they point to functions that take no arguments and return void.
 
 Comms::Comms(){}
 Comms::~Comms(){}
