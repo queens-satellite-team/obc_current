@@ -10,12 +10,12 @@
 class Comms {
 
 public:
-    static std::unordered_map<uint8_t, std::pair<int, void(*)()> > methodMap;
+    static std::unordered_map<uint8_t, std::pair<int, void(*)(std::vector<int> args)> > methodMap;
     Comms();
     ~Comms();
     static uint8_t read8(int reg);
-    static void modeSwitch();
-    static void fileTransfer();
+    static void modeSwitch(std::vector<int> args);
+    static void fileTransfer(std::vector<int> args);
     static void callFunction();
 };
 
