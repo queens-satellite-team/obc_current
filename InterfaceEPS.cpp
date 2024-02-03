@@ -1,5 +1,7 @@
 #include "interfaceEPS.h"
 #include <iostream>
+#include <iomanip>
+
 using namespace std;
 class InterfaceEPS{
     public:
@@ -14,13 +16,28 @@ class InterfaceEPS{
                   0   0   0   0   0   0   0  1/0 
         So in Hex should be from 0x00 to 0x7F 
 */
+
 /*
         Write Command
         7-bit address + data bytes
         Data bytes:
             - Command Byte
             - Data Parameter Byte (0x00 for no specifc params.)
+
+            
 */
+void i2cWrite(uint8_t deviceAddress, uint8_t data) {
+    // implementation of the write operation here
+    // This function should send the appropriate I2C start, device address, data, and stop signals
+    // Replace the following print statement with the actual I2C communication code
+    std::cout << "Write to device 0x" << std::hex << std::setw(2) << std::setfill('0') << +deviceAddress
+              << " Data: 0x" << std::hex << std::setw(2) << std::setfill('0') << +data << std::endl;
+}
+
+
+
+
+
 /*
         Read Command
         7-bit address + data bytes
