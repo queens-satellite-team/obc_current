@@ -74,28 +74,3 @@ void Comms::callFunction() {
         std::cerr << "Can't find function ID in map" << std::endl;
     }
 }
- int main() {
-    // Create an instance of the Comms class
-    Comms commsInstance;
-
-    // Define function mappings
-    commsInstance.methodMap[1] = std::make_pair(12, &Comms::modeSwitch);
-    commsInstance.methodMap[2] = std::make_pair(3, &Comms::fileTransfer);
-
-    // Simulate receiving a function ID and arguments
-    uint8_t function_id = 1;  // Choose the function ID you want to test
-    /**int numArgs = commsInstance.methodMap[function_id].first;
-    std::vector<int> args(numArgs);
-
-    // Assign test values to arguments
-    for (int i = 0; i < numArgs; i++) {
-        args[i] = Comms::read8(i + 1);  // Assigning values 1, 2, 3, ... to the arguments
-    }**/
-
-    // Call the function
-    commsInstance.callFunction();
-
-    return 0;
-}
-
-
