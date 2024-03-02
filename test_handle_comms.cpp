@@ -1,5 +1,5 @@
 #include "tests/fff.h"
-#include "handle_comms.h"
+#include "handle_comms.hpp"
 #include <cassert>
 #include <iostream>
 
@@ -39,36 +39,36 @@ void test_construction_and_callFunction(){
     return;
 }
     
-void test_modeSwitch()
-{
-    std::cout << "test_modeSwitch: Testing modeSwitch function" << std::endl;
+// void test_modeSwitch()
+// {
+//     std::cout << "test_modeSwitch: Testing modeSwitch function" << std::endl;
 
-    //reset fake function call history
-    RESET_FAKE(read8);
-    RESET_FAKE(modeSwitch);
+//     //reset fake function call history
+//     RESET_FAKE(read8);
+//     RESET_FAKE(modeSwitch);
 
-    //fake return value for read8
-    read8_fake.return_val = 1;
+//     //fake return value for read8
+//     read8_fake.return_val = 1;
 
-    // Simulate receiving a function ID and arguments for modeSwitch
-    uint8_t function_id = 0;  // Function ID for modeSwitch
-    std::vector<int> args(2); //Example arguments
-    args.push_back(5);
-    args.push_back(6);
+//     // Simulate receiving a function ID and arguments for modeSwitch
+//     uint8_t function_id = 0;  // Function ID for modeSwitch
+//     std::vector<int> args(2); //Example arguments
+//     args.push_back(5);
+//     args.push_back(6);
 
-    // Call the function
-    Comms c();
+//     // Call the function
+//     Comms c();
 
-    c.callFunction();
+//     c.callFunction();
 
-    // Assert that read8 was called to get the function ID
-    assert(read8_fake.call_count == 1);
+//     // Assert that read8 was called to get the function ID
+//     assert(read8_fake.call_count == 1);
 
-    // Assert that modeSwitch was called with the correct arguments
-    assert(modeSwitch_fake.call_count == 1);
-    assert(modeSwitch_fake.arg0_val[0] == 5);
-    assert(modeSwitch_fake.arg0_val[1] == 6);
-}
+//     // Assert that modeSwitch was called with the correct arguments
+//     assert(modeSwitch_fake.call_count == 1);
+//     assert(modeSwitch_fake.arg0_val[0] == 5);
+//     assert(modeSwitch_fake.arg0_val[1] == 6);
+// }
 
 void test_fileTransfer()
 {
@@ -80,7 +80,7 @@ void test_fileTransfer()
     read8_fake.return_val = 1;
 
     // Simulate receiving a function ID and arguments for fileTransfer
-    uint8_t function_id = 1;  // Function ID for fileTransfer
+    uint8_t function_id = 2;  // Function ID for fileTransfer
     std::vector<int> args(3); //Example arguments
     args.push_back(1);
     args.push_back(2);
@@ -148,15 +148,14 @@ int main()
 {
     test_construction_and_callFunction();
     // test_modeSwitch();
-    // test_fileTransfer();
-    // test_callFunction_existingFunction();
-    // test_callFunction_nonExistingFunction();
+    test_fileTransfer();
+    test_callFunction_existingFunction();
+    test_callFunction_nonExistingFunction();
 
     // Add more tests as needed
 
     return 0;
 }
-
 
 
 
