@@ -14,7 +14,7 @@ Comms::~Comms(){}
 
 uint8_t Comms::read8(int reg) {
     // This function is a placeholder for reading data, will actually be comms data from i2c
-    return 0x01 + reg;
+    return 1 + reg;
 }
 
 //commands available:
@@ -32,6 +32,7 @@ void Comms::fileTransfer(std::vector<int> args){
     int param1 = args[0];
     int param2 = args[1];
     int param3 = args[2];
+    std::cout << "Transfering File with arguments: " << param1 << ", " << param2 << ", " << param3 << std::endl;
 }
 
 
@@ -39,8 +40,18 @@ void Comms::callFunction() {
     // Function is responsible for looking up a function pointer in methodMap based on a given function ID obtained from read8(0). If it finds a matching function, it calls it. Otherwise, it reports an error.
     // Reads function_id
     uint8_t function_id = read8(0);
+    std::cout << "function ID: " << function_id << "\n";
+    
+    //To simplify:
+    //methodMap.count(function_id); // 0 if not there, 1 if there
+    //methodMap[function_id].first
+
+
+
     // Searches methodMap
     auto it = methodMap.find(function_id);
+    
+
 
     if (it != methodMap.end()) {
         // If result is not an error, then call function
@@ -72,11 +83,12 @@ void Comms::callFunction() {
     Comms commsInstance;
 
     // Define function mappings
-    commsInstance.methodMap[1] = std::make_pair(12, &Comms::modeSwitch);
-    commsInstance.methodMap[2] = std::make_pair(3, &Comms::fileTransfer);
+    commsInstance.methodMap[0] = std::make_pair(2, &Comms::modeSwitch);
+    commsInstance.methodMap[1] = std::make_pair(3, &Comms::fileTransfer);
 
     // Simulate receiving a function ID and arguments
-    uint8_t function_id = 1;  // Choose the function ID you want to test
+    uint8_t function_id = 3;  // Choose the function ID you want to test
+    
     /**int numArgs = commsInstance.methodMap[function_id].first;
     std::vector<int> args(numArgs);
 
@@ -90,5 +102,7 @@ void Comms::callFunction() {
 
     return 0;
 }
+
+
 
 
