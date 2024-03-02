@@ -22,6 +22,7 @@ uint8_t read8(int reg) {
 
 //commands available:
 void mode_switch(){
+    // Example usage of this function:
     // Each command reads in its own data
     int param1 = read8(0);
     int param2 = read8(1);
