@@ -2,6 +2,13 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
+// BEFORE YOU MAKE CHANGES:   git fetch
+//                            git pull
+
+// When you've made changes:  git add <filename>
+//                            git commit -m "your message here"
+//                            git push
+
 #include "handle_comms.h"
 
 // This code maps function IDs to fuctions using function pointers and unordered maps
@@ -78,6 +85,7 @@ void Comms::callFunction() {
         std::cerr << "Can't find function ID in map" << std::endl;
     }
 }
+<<<<<<< HEAD
  int main() {
     // Create an instance of the Comms class
     Comms commsInstance;
@@ -106,3 +114,5 @@ void Comms::callFunction() {
 
 
 
+=======
+>>>>>>> 4c77dc54b6246fb3431101506b5f394a996e0e8f
