@@ -20,8 +20,8 @@ void test_construction_and_callFunction(){
     Comms commsInstance;
 
     // Define function mappings
-    commsInstance.methodMap[1] = std::make_pair(12, &Comms::modeSwitch);
-    commsInstance.methodMap[2] = std::make_pair(3, &Comms::fileTransfer);
+    // commsInstance.methodMap[1] = std::make_pair(12, &Comms::modeSwitch);
+    // commsInstance.methodMap[2] = std::make_pair(3, &Comms::fileTransfer);
 
     // Simulate receiving a function ID and arguments
     uint8_t function_id = 1;  // Choose the function ID you want to test
@@ -36,6 +36,7 @@ void test_construction_and_callFunction(){
 
     // Call the function
     commsInstance.callFunction();
+    printf("done test_construction_and_callFunction");
     return;
 }
     
@@ -112,7 +113,7 @@ void test_callFunction_existingFunction()
     uint8_t function_id = 0;  // Function ID for modeSwitch
 
     // Define function mappings
-    Comms::methodMap[function_id] = std::make_pair(2, &modeSwitch);
+    //Comms::methodMap[function_id] = std::make_pair(2, &modeSwitch);
 
     // Call the function
     Comms::callFunction();
