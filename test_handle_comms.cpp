@@ -22,13 +22,13 @@ void test_construction_and_callFunction(){
     // Define function mappings
     commsInstance.setModeSwitchKey(12);
     commsInstance.setFileTransferKey(3);
-    // commsInstance.methodMap[1] = std::make_pair(12, &Comms::modeSwitch);
-    // commsInstance.methodMap[2] = std::make_pair(3, &Comms::fileTransfer);
+    // commsInstance.taskMap[1] = std::make_pair(12, &Comms::modeSwitch);
+    // commsInstance.taskMap[2] = std::make_pair(3, &Comms::fileTransfer);
 
     // Simulate receiving a function ID and arguments
     uint8_t function_id = 1;  // Choose the function ID you want to test
     
-    /**int numArgs = commsInstance.methodMap[function_id].first;
+    /**int numArgs = commsInstance.taskMap[function_id].first;
     std::vector<int> args(numArgs);
 
     // Assign test values to arguments
@@ -37,7 +37,7 @@ void test_construction_and_callFunction(){
     }**/
 
     // Call the function
-    commsInstance.callFunction();
+    commsInstance.callFunction(true, function_id);
     printf("done test_construction_and_callFunction");
     return;
 }
@@ -90,7 +90,7 @@ void test_fileTransfer()
     args.push_back(3);
 
     // Call the function
-    Comms::callFunction();
+    Comms::callFunction(true, function_id);
 
     // Assert that read8 was called to get the function ID
     assert(read8_fake.call_count == 1);
@@ -118,11 +118,11 @@ void test_callFunction_existingFunction()
     Comms commsInstance;
 
     // Define function mappings
-    //Comms::methodMap[function_id] = std::make_pair(2, &modeSwitch);
+    //Comms::taskMap[function_id] = std::make_pair(2, &modeSwitch);
     commsInstance.setModeSwitchKey(2);
 
     // Call the function
-    Comms::callFunction();
+    Comms::callFunction(true, 2);
 
     // Assert that read8 was called to get the function ID
     assert(read8_fake.call_count == 1);
@@ -141,7 +141,7 @@ void test_callFunction_nonExistingFunction()
     read8_fake.return_val = 2;  // Non-existing function ID
 
     // Call the function
-    Comms::callFunction();
+    Comms::callFunction(true, -1);
 
     // Assert that read8 was called to get the function ID
     assert(read8_fake.call_count == 1);

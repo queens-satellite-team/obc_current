@@ -12,10 +12,12 @@ class Comms {
 public:
     // Maps ID number to function_pointer (location of code)
     // note: this definition means all methods MUST take in a parameter of type std::vector<int> called args
-    static std::unordered_map<uint8_t, std::pair<int, void(*)(std::vector<int> args)> > methodMap;
+    static std::unordered_map<uint8_t, std::pair<int, void(*)(std::vector<int> args)> > taskMap;
 
     Comms();
     ~Comms();
+
+    void Comms::handleData();
 
     // setters
     void Comms::setModeSwitchKey(int key);
@@ -23,7 +25,7 @@ public:
 
     // helper functions
     static uint8_t read8(int reg);
-    static void callFunction();
+    static void callFunction(bool task, uint8_t function_id);
 
     // "tasks" available
     static void modeSwitch(std::vector<int> args);
