@@ -1,5 +1,5 @@
 #include "tests/fff.h"
-#include "handle_comms.h"
+#include "handle_comms.hpp"
 #include <cassert>
 #include <iostream>
 
@@ -83,7 +83,7 @@ void test_fileTransfer()
     read8_fake.return_val = 1;
 
     // Simulate receiving a function ID and arguments for fileTransfer
-    uint8_t function_id = 1;  // Function ID for fileTransfer
+    uint8_t function_id = 2;  // Function ID for fileTransfer
     std::vector<int> args(3); //Example arguments
     args.push_back(1);
     args.push_back(2);
@@ -154,16 +154,15 @@ void test_callFunction_nonExistingFunction()
 int main()
 {
     test_construction_and_callFunction();
-    // test_modeSwitch();
-    // test_fileTransfer();
-    // test_callFunction_existingFunction();
-    // test_callFunction_nonExistingFunction();
+    test_modeSwitch();
+    test_fileTransfer();
+    test_callFunction_existingFunction();
+    test_callFunction_nonExistingFunction();
 
     // Add more tests as needed
 
     return 0;
 }
-
 
 
 
