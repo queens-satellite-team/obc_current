@@ -17,10 +17,21 @@
 std::unordered_map<uint8_t, std::pair<int, void(*)(std::vector<int> args)> > Comms::methodMap; // unordered map named methodMap, maps uint8_t keys to function pointers. The function pointers are of type void(*)(), meaning they point to functions that take no arguments and return void.
 
 Comms::Comms(){
-    this->methodMap[1] = std::make_pair(0, &Comms::modeSwitch);
+    this->methodMap[0] = std::make_pair(0, &Comms::modeSwitch);
     this->methodMap[1] = std::make_pair(1, &Comms::fileTransfer);
 }
 Comms::~Comms(){}
+
+// key setters
+void Comms::setModeSwitchKey(int key){
+    this->methodMap[0] = std::make_pair(key, &Comms::modeSwitch);
+    return;
+}
+void Comms::setFileTransferKey(int key){
+    this->methodMap[1] = std::make_pair(key, &Comms::fileTransfer);
+    return;
+}
+
 
 uint8_t Comms::read8(int reg) {
     // This function is a placeholder for reading data, will actually be comms data from i2c
@@ -44,7 +55,6 @@ void Comms::fileTransfer(std::vector<int> args){
     int param3 = args[2];
     std::cout << "Transfering File with arguments: " << param1 << ", " << param2 << ", " << param3 << std::endl;
 }
-
 
 void Comms::callFunction() {
     // Function is responsible for looking up a function pointer in methodMap based on a given function ID obtained from read8(0). If it finds a matching function, it calls it. Otherwise, it reports an error.

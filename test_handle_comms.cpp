@@ -20,6 +20,8 @@ void test_construction_and_callFunction(){
     Comms commsInstance;
 
     // Define function mappings
+    commsInstance.setModeSwitchKey(12);
+    commsInstance.setFileTransferKey(3);
     // commsInstance.methodMap[1] = std::make_pair(12, &Comms::modeSwitch);
     // commsInstance.methodMap[2] = std::make_pair(3, &Comms::fileTransfer);
 
@@ -112,8 +114,12 @@ void test_callFunction_existingFunction()
     // Simulate receiving a function ID for modeSwitch
     uint8_t function_id = 0;  // Function ID for modeSwitch
 
+    // Create an instance of the Comms class
+    Comms commsInstance;
+
     // Define function mappings
     //Comms::methodMap[function_id] = std::make_pair(2, &modeSwitch);
+    commsInstance.setModeSwitchKey(2);
 
     // Call the function
     Comms::callFunction();
