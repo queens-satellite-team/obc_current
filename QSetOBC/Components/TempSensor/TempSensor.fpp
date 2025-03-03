@@ -2,29 +2,31 @@ module Components {
     @ Temperature Sensor Checking Component
     active component TempSensor {
 
-        # One async command/port is required for active components
-        # This should be overridden by the developers with a useful command/port
-        @ TODO
-        async command TODO opcode 0
+        @ Command to read the Temperature
+        async command READ_TEMPERATURE(
+        )
 
-        ##############################################################################
-        #### Uncomment the following examples to start customizing your component ####
-        ##############################################################################
+        @ Reports the action of reading the temperature
+        event StartTemperatureRead() \
+            severity activity high \
+            format "Started temperature read"
 
-        # @ Example async command
-        # async command COMMAND_NAME(param_name: U32)
+        @ Reports the temperature 
+        event EndTemperatureRead(Temperature: F32) \
+            severity activity high \
+            format "Finished temperature read {} Celsius"
 
-        # @ Example telemetry counter
-        # telemetry ExampleCounter: U64
+        @ Telemetry channel to report temperature.
+        telemetry TemperatureValue: F32
 
-        # @ Example event
-        # event ExampleStateEvent(example_state: Fw.On) severity activity high id 0 format "State set to {}"
+        @ Telemetry channel to report number of temperature checks.
+        telemetry TemperatureReadings: U32
 
-        # @ Example port: receiving calls from the rate group
-        # sync input port run: Svc.Sched
+        # @ Port receiving calls from the rate group
+        # async input port run: Svc.Sched
 
-        # @ Example parameter
-        # param PARAMETER_NAME: U32
+        @ Port sending calls to the i2c driver
+        sync input port i2cDriver: Drv.I2cWriteRead
 
         ###############################################################################
         # Standard AC Ports: Required for Channels, Events, Commands, and Parameters  #
