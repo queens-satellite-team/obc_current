@@ -39,9 +39,9 @@ void TempSensor::READ_TEMPERATURE_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
 
             // Log, output ports, command response, etc.
             this->m_temp_reads += 1;
-            this->log_ACTIVITY_HI_ReadTemperatureState();
+            this->log_ACTIVITY_HI_StartTemperatureRead();
             this->tlmWrite_TemperatureValue(temperatureC);
-            this->log_ACTIVITY_LO_TemperatureRead(temperatureC);
+            this->log_ACTIVITY_HI_EndTemperatureRead(temperatureC);
             this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
             break;
         }
