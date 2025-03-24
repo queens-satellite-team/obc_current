@@ -43,6 +43,8 @@ class TempSensor : public TempSensorComponentBase {
     //! Command to read the Temperature
     void READ_TEMPERATURE_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) override;
 
+    void run_handler(FwIndexType portNum, U32 context) override;
+
   private:
     static const U8 MCP9808_REG_CONFIG = 0x01;
     static const U8 MCP9808_REG_TEMP = 0x05;

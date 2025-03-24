@@ -61,4 +61,13 @@ bool TempSensor::isConnected_writeRead(void) {
     return this->isConnected_writeRead_OutputPort(0);
 }
 
+void TempSensor::run_handler(FwIndexType portNum, U32 context) {
+    F32 temp = this->readTemperature();
+    this->tlmWrite_TemperatureValue(temp);
+    // this->log_ACTIVITY_HI_TemperatureRead(temp);
+    // this->
+    m_temp_reads++;
+    // this->tlmWrite_TempReads(m_temp_reads);
+}
+
 }  // namespace Components
